@@ -613,42 +613,6 @@ const SEED_NPCS = [
 **Rend.** *Melee Attack Roll:* +7, reach 10 ft. *Hit:* 11 (2d6 + 4) slashing damage.
 ### Bonus Actions
 **Charge.** Trollet beveger seg opptil halvparten av sin Speed rett mot en fiende det kan se.` },
-  { id: 'npc-crocodile', md: `# Crocodile
-*Large Beast, Unaligned*
-**Armor Class** 12  
-**Initiative** +0 (10)  
-**Hit Points** 13 (2d10 + 2)  
-**Speed** 20 ft., Swim 30 ft.
-| STR | DEX | CON | INT | WIS | CHA |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| 15 (+2) | 10 (+0) | 13 (+1) | 2 (-4) | 10 (+0) | 5 (-3) |
-**Skills** Stealth +2  
-**Senses** passive Perception 10  
-**Languages** Ingen  
-**Challenge** 1/2 (100 XP)
-### Traits
-**Hold Breath.** Kan holde pusten i opptil 1 time.
-### Actions
-**Bite.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 6 (1d8 + 2) piercing damage. Er målet Medium eller mindre, blir det Grappled (escape DC 12) og er Restrained mens det er Grappled.` },
-  { id: 'npc-goblin', md: `# Goblin Warrior (Goblin)
-*Small Fey (Goblinoid), Chaotic Neutral*
-**Armor Class** 15  
-**Initiative** +2 (12)  
-**Hit Points** 10 (3d6)  
-**Speed** 30 ft.
-| STR | DEX | CON | INT | WIS | CHA |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| 8 (-1) | 15 (+2) | 10 (+0) | 10 (+0) | 8 (-1) | 8 (-1) |
-**Skills** Stealth +6  
-**Gear** Leather Armor, Scimitar, Shield, Shortbow  
-**Senses** Darkvision 60 ft., passive Perception 9  
-**Languages** Common, Goblin  
-**Challenge** 1/4 (50 XP)
-### Actions
-**Scimitar.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) slashing damage, pluss 2 (1d4) hvis angrepet hadde Advantage.
-**Shortbow.** *Ranged Attack Roll:* +4, range 80/320 ft. *Hit:* 5 (1d6 + 2) piercing damage, pluss 2 (1d4) hvis angrepet hadde Advantage.
-### Bonus Actions
-**Nimble Escape.** Kan ta Disengage eller Hide.` },
   { id: 'npc-zemk', md: `# Duergar Zemk (Dverg)
 *Medium Humanoid (Dwarf), Lawful Evil*
 **Armor Class** 16 (scale mail, shield)  
@@ -685,26 +649,6 @@ const SEED_NPCS = [
 ### Actions
 **Scimitar.** *Melee Attack Roll:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) slashing damage.
 **Light Crossbow.** *Ranged Attack Roll:* +3, range 80/320 ft. *Hit:* 5 (1d8 + 1) piercing damage.` },
-  { id: 'npc-grayooze', md: `# Gray Ooze (Slim)
-*Medium Ooze, Unaligned*
-**Armor Class** 9  
-**Initiative** -2 (13)  
-**Hit Points** 22 (3d8 + 9)  
-**Speed** 10 ft., Climb 10 ft.
-| STR | DEX | CON | INT | WIS | CHA |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| 12 (+1) | 6 (-2) | 16 (+3) | 1 (-5) | 6 (-2) | 2 (-4) |
-**Skills** Stealth +2  
-**Damage Resistances** Acid, Cold, Fire  
-**Condition Immunities** Blinded, Charmed, Deafened, Exhaustion, Frightened, Grappled, Prone, Restrained  
-**Senses** Blindsight 60 ft., passive Perception 8  
-**Languages** Ingen  
-**Challenge** 1/2 (100 XP)
-### Traits
-**Amorphous.** Kan presse seg gjennom åpninger helt ned til 1 tomme uten ekstra bevegelse.
-**Corrosive Form.** Ikke-magisk ammunisjon blir ødelagt når den treffer. Ikke-magiske våpen som rører den får kumulativ −1 på attack rolls og ødelegges ved −5 (Mending fjerner straffen). Den kan spise seg gjennom 2 tommer ikke-magisk metall eller tre på 1 runde.
-### Actions
-**Pseudopod.** *Melee Attack Roll:* +3, reach 5 ft. *Hit:* 10 (2d8 + 1) acid damage. Ikke-magisk rustning på målet får −1 AC per treff og ødelegges hvis AC faller til 10 (Mending fjerner straffen).` },
   { id: 'npc-grumshar', md: `# Grum'shar (Lærling)
 *Medium Humanoid, Chaotic Evil*
 **Armor Class** 12  
@@ -1274,7 +1218,7 @@ function sheetEl(sh) {
 }
 function renderSheets() { $('#sheets').replaceChildren(...sheets.map(sheetEl).filter(Boolean)); }
 let npcQuery, npcList, npcToggle, npcLock, npcAll = false;
-const SECRET_IDS = ['npc-crocodile', 'npc-goblin', 'npc-zemk', 'npc-krentz', 'npc-grayooze', 'npc-grumshar', 'npc-nihiloor'];
+const SECRET_IDS = ['npc-crocodile', 'npc-goblin-warrior', 'npc-gray-ooze', 'npc-zemk', 'npc-krentz', 'npc-grumshar', 'npc-nihiloor'];
 const hx = (s, seed = 0) => { let a = 0xdeadbeef ^ seed, b = 0x41c6ce57 ^ seed; for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); a = Math.imul(a ^ c, 2654435761); b = Math.imul(b ^ c, 1597334677); } a = Math.imul(a ^ (a >>> 16), 2246822507); a ^= Math.imul(b ^ (b >>> 13), 3266489909); b = Math.imul(b ^ (b >>> 16), 2246822507); b ^= Math.imul(a ^ (a >>> 13), 3266489909); return 4294967296 * (2097151 & b) + (a >>> 0); };
 const KEYCHK = 7985879761873810;
 const ICONS = {
