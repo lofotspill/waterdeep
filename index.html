@@ -1273,7 +1273,8 @@ function sheetEl(sh) {
 function renderSheets() { $('#sheets').replaceChildren(...sheets.map(sheetEl).filter(Boolean)); }
 let npcQuery, npcList, npcToggle, npcLock, npcAll = false;
 const SECRET_IDS = ['npc-crocodile', 'npc-goblin', 'npc-zemk', 'npc-krentz', 'npc-grayooze', 'npc-grumshar', 'npc-nihiloor'];
-const SECRET_CODE = 'kenguru';
+const hx = (s, seed = 0) => { let a = 0xdeadbeef ^ seed, b = 0x41c6ce57 ^ seed; for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); a = Math.imul(a ^ c, 2654435761); b = Math.imul(b ^ c, 1597334677); } a = Math.imul(a ^ (a >>> 16), 2246822507); a ^= Math.imul(b ^ (b >>> 13), 3266489909); b = Math.imul(b ^ (b >>> 16), 2246822507); b ^= Math.imul(a ^ (a >>> 13), 3266489909); return 4294967296 * (2097151 & b) + (a >>> 0); };
+const KEYCHK = 7985879761873810;
 const ICONS = {
   lock: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
   key: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6.5" cy="12" r="3.5"/><path d="M10 12h11M17 12v3.5M20.5 12v2.5"/></svg>'
@@ -1289,7 +1290,7 @@ function secretRows(redraw, withRows) {
     const inp = h('input', { type: 'text', placeholder: 'Kode', autocomplete: 'off', 'aria-label': 'Kode', class: 'codein' });
     inp.addEventListener('keydown', e => {
       e.stopPropagation();
-      if (e.key === 'Enter') { e.preventDefault(); if (inp.value.trim().toLowerCase() === SECRET_CODE) { secretOpen = true; secretAsk = false; redraw(); } else { inp.value = ''; inp.classList.add('bad'); } }
+      if (e.key === 'Enter') { e.preventDefault(); if (hx(inp.value.trim().toLowerCase()) === KEYCHK) { secretOpen = true; secretAsk = false; redraw(); } else { inp.value = ''; inp.classList.add('bad'); } }
       if (e.key === 'Escape') { secretAsk = false; redraw(); }
     });
     inp.addEventListener('input', () => inp.classList.remove('bad'));
