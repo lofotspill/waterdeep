@@ -815,10 +815,10 @@ const loaded = {}, saveTimers = {}, inflight = {}, dirty = {};
 function setStatus(kind) {
   const el = $('#status');
   el.className = 'status';
-  const t = { saving: 'Lagrer…', saved: 'Lagret', saved0: 'Lagret', err: 'Kunne ikke lagre', off: 'Ingen lagring her', slow: 'Får ikke kontakt med lagringen' }[kind] || '';
+  const t = { saving: 'Lagrer…', saved: 'Lagret', saved0: 'Lagret', err: 'Kunne ikke lagre', off: 'Offline', slow: 'Får ikke kontakt med lagringen' }[kind] || '';
   el.textContent = t;
   if (kind === 'saved' || kind === 'saved0') el.classList.add('ok');
-  if (kind === 'err' || kind === 'slow' || kind === 'off') el.classList.add('bad');
+  if (kind === 'err' || kind === 'slow') el.classList.add('bad');
 }
 function queueSave(key) {
   if (!db || !loaded[key]) return;
