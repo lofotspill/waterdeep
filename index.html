@@ -1638,15 +1638,8 @@ function tickClock() {
 const fitNote = ta => { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; };
 function initNotes() {
   clockD = h('span', { class: 'cdate' });
-  const add = h('input', { type: 'text', placeholder: 'Ny huskelapp, trykk Enter', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Ny huskelapp', 'data-key': 'noteq',
-    onkeydown: e => {
-      if (e.key !== 'Enter') return;
-      const t = e.target.value.trim(); if (!t) return;
-      S.notes.items.unshift({ id: uid(), text: t, t: Date.now() });
-      e.target.value = ''; queueSave('notes'); renderNotes();
-    } });
   noteList = h('div', { class: 'notelist' });
-  $('#notes').replaceChildren(h('div', { class: 'nhdr' }, h('div', { class: 'clock' }, clockD), add), noteList);
+  $('#notes').replaceChildren(h('div', { class: 'nhdr' }, h('div', { class: 'clock' }, clockD)), noteList);
   tickClock(); setInterval(tickClock, 1000);
   renderNotes();
 }
