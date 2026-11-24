@@ -240,6 +240,7 @@ details.addwrap[open] { padding-bottom: 8px; }
 .pop .addform { grid-template-columns: repeat(3, 1fr); margin-top: 0; }
 .pop .addform .wide { grid-column: 1 / -1; }
 .pop .cnt { width: 62px; flex: none; }
+.addpop .row { flex-wrap: nowrap; }
 .condgrid { display: flex; flex-wrap: wrap; gap: 5px; }
 .condopt { cursor: pointer; border: 1px solid rgba(255,255,255,.85); background: rgba(255,255,255,.55); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
 .condopt:hover { background: rgba(255,255,255,.9); }
@@ -1179,10 +1180,13 @@ function openAddPop(anchor) {
   const cnt = h('input', { type: 'number', class: 'cnt', min: '1', max: '20', value: '1', 'aria-label': 'Antall', title: 'Antall' });
   const list = h('ul', { class: 'nlist' });
   const msg = h('div', { class: 'muted' });
+  const lock = h('button', { type: 'button', class: 'btn small', title: 'Skjulte karakterer', 'aria-label': 'Lås opp eller lås skjulte karakterer', onclick: () => { if (secretOpen) { secretOpen = false; secretAsk = false; } else { secretAsk = !(secretAsk && secretWho === 'pop'); secretWho = 'pop'; } draw(); renderNpc(); } }, icon('lock'));
   const draw = () => {
-    const items = secretAsk ? [] : npcMatches(q.value);
+    lock.replaceChildren(icon(secretOpen ? 'key' : 'lock'));
+    const asking = secretAsk && secretWho === 'pop';
+    const items = asking ? [] : npcMatches(q.value);
     const extra = secretRows(draw, q.value.trim() === '');
-    if (secretAsk) { list.replaceChildren(...extra); return; }
+    if (asking) { list.replaceChildren(...extra); return; }
     list.replaceChildren(...(items.length ? items.map(n => h('li', {}, h('button', { type: 'button', class: 'nitem', onclick: () => {
       const k = Math.min(20, Math.max(1, toInt(cnt.value, 1)));
       addNpcToCombat(n, k, false);
@@ -1208,7 +1212,7 @@ function openAddPop(anchor) {
   openPop('add', anchor, h('div', { class: 'addpop' }), q);
   const el = pop.el;
   el.style.display = 'grid';
-  el.append(h('div', { class: 'row' }, h('div', { class: 'grow' }, q), h('span', { class: 'muted' }, 'Antall'), cnt), list, msg, toggle, form);
+  el.append(h('div', { class: 'row' }, h('div', { class: 'grow' }, q), h('span', { class: 'muted' }, 'Antall'), cnt, lock), list, msg, toggle, form);
   q.focus();
 }
 
@@ -1425,17 +1429,18 @@ const ICONS = {
   key: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6.5" cy="12" r="3.5"/><path d="M10 12h11M17 12v3.5M20.5 12v2.5"/></svg>'
 };
 const icon = n => { const e = document.createElement('span'); e.className = 'ico'; e.innerHTML = ICONS[n]; return e; };
-let secretOpen = false, secretAsk = false;
+let secretOpen = false, secretAsk = false, secretWho = 'npc';
 const isSecret = n => SECRET_IDS.includes(n.id);
 function secretRows(redraw, withRows) {
   const hidden = S.npcs.list.filter(isSecret);
   if (!hidden.length) return [];
   if (secretOpen) return [];
-  if (secretAsk) {
+  const who = redraw === renderNpc ? 'npc' : 'pop';
+  if (secretAsk && secretWho === who) {
     const inp = h('input', { type: 'text', placeholder: 'Kode', autocomplete: 'off', 'aria-label': 'Kode', class: 'codein' });
     inp.addEventListener('keydown', e => {
       e.stopPropagation();
-      if (e.key === 'Enter') { e.preventDefault(); if (hx(inp.value.trim().toLowerCase()) === KEYCHK) { secretOpen = true; secretAsk = false; redraw(); } else { inp.value = ''; inp.classList.add('bad'); } }
+      if (e.key === 'Enter') { e.preventDefault(); if (hx(inp.value.trim().toLowerCase()) === KEYCHK) { secretOpen = true; secretAsk = false; redraw(); if (redraw !== renderNpc) renderNpc(); } else { inp.value = ''; inp.classList.add('bad'); } }
       if (e.key === 'Escape') { secretAsk = false; redraw(); }
     });
     inp.addEventListener('input', () => inp.classList.remove('bad'));
@@ -1443,7 +1448,7 @@ function secretRows(redraw, withRows) {
     setTimeout(() => inp.focus(), 0);
     return [h('li', { class: 'coderow' }, icon('lock'), inp)];
   }
-  const rows = withRows ? hidden.map(() => h('li', {}, h('button', { type: 'button', class: 'nitem secret', onclick: () => { secretAsk = true; redraw(); } }, icon('lock'), '••••••••'))) : [];
+  const rows = withRows ? hidden.map(() => h('li', {}, h('button', { type: 'button', class: 'nitem secret', onclick: () => { secretAsk = true; secretWho = who; redraw(); } }, icon('lock'), '••••••••'))) : [];
   return rows;
 }
 function npcMatches(q) {
@@ -1470,14 +1475,15 @@ function placeNpcList() {
 function renderNpc() {
   if (!npcList) return;
   const hasQ = npcQuery.value.trim() !== '';
-  const open = npcAll || hasQ || secretAsk || document.activeElement === npcQuery;
+  const asking = secretAsk && secretWho === 'npc';
+  const open = npcAll || hasQ || asking || document.activeElement === npcQuery;
   npcList.hidden = !open;
   if (open) placeNpcList();
   if (npcLock) npcLock.replaceChildren(icon(secretOpen ? 'key' : 'lock'));
   if (npcToggle) npcToggle.textContent = npcAll ? 'Skjul alle' : 'Vis alle';
-  const items = secretAsk ? [] : npcMatches(npcAll ? '' : npcQuery.value);
+  const items = asking ? [] : npcMatches(npcAll ? '' : npcQuery.value);
   const extra = secretRows(renderNpc, !hasQ);
-  if (secretAsk) { npcList.replaceChildren(...extra); return; }
+  if (asking) { npcList.replaceChildren(...extra); return; }
   npcList.replaceChildren(...(items.length
     ? items.map(n => h('li', {}, h('button', { type: 'button', class: 'nitem', onclick: () => { openSheet(n.id); npcAll = false; npcQuery.value = ''; npcQuery.blur(); renderNpc(); } }, npcShow(n.md))))
     : [h('li', { class: 'muted' }, S.npcs.list.length ? 'Ingen treff.' : 'Ingen NPC-er ennå. Trykk + Ny.')]), ...extra);
@@ -1487,7 +1493,7 @@ function initNpc() {
   npcList = h('ul', { class: 'nlist npcdrop' }); npcList.hidden = true; document.body.appendChild(npcList);
   npcList.addEventListener('mousedown', e => { if (!(e.target.closest && e.target.closest('input'))) e.preventDefault(); });
   window.addEventListener('resize', () => { if (!npcList.hidden) placeNpcList(); });
-  npcLock = h('button', { type: 'button', class: 'btn small', title: 'Skjulte karakterer', 'aria-label': 'Lås opp eller lås skjulte karakterer', onclick: () => { if (secretOpen) { secretOpen = false; secretAsk = false; } else secretAsk = !secretAsk; renderNpc(); } }, icon('lock'));
+  npcLock = h('button', { type: 'button', class: 'btn small', title: 'Skjulte karakterer', 'aria-label': 'Lås opp eller lås skjulte karakterer', onclick: () => { if (secretOpen) { secretOpen = false; secretAsk = false; } else { secretAsk = !(secretAsk && secretWho === 'npc'); secretWho = 'npc'; } renderNpc(); } }, icon('lock'));
   npcToggle = h('button', { type: 'button', class: 'btn small', onclick: () => { npcAll = !npcAll; npcQuery.value = ''; renderNpc(); } }, 'Vis alle');
   npcQuery.addEventListener('input', () => { npcAll = false; renderNpc(); });
   npcQuery.addEventListener('focus', renderNpc);
