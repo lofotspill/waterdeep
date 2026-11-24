@@ -280,7 +280,7 @@ details.addwrap[open] { padding-bottom: 8px; }
 .nhead { display: flex; align-items: center; justify-content: space-between; }
 .nhead small { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; }
 .nhead .btn { width: 22px; height: 22px; padding: 0; line-height: 1; font-size: 13px; }
-.ntext { width: 100%; resize: none; border: 0; background: transparent; font: inherit; font-size: 13px; line-height: 1.35; padding: 0; overflow: hidden; color: var(--ink); }
+.ntext { width: 100%; font-size: 13px; line-height: 1.35; padding: 0; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
 .ntext:focus { outline: none; }
 .rulehead { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; width: 100%; text-align: left; cursor: pointer; background: none; border: 0; padding: 2px 0; }
 .rulehead em { font-style: normal; color: var(--muted); font-size: 11px; }
@@ -1647,15 +1647,10 @@ function renderNotes() {
   if (!noteList) return;
   const items = S.notes.items;
   noteList.replaceChildren(...(items.length ? items.map((n, i) => {
-    const ta = h('textarea', { class: 'ntext', rows: '1', spellcheck: 'false', 'aria-label': 'Huskelapp', 'data-key': 'note-' + n.id,
-      oninput: e => { n.text = e.target.value; fitNote(e.target); queueSave('notes'); } }, n.text);
-    ta.value = n.text;
     return h('div', { class: 'note c' + (i % 4) },
-      h('div', { class: 'nhead' }, h('small', {}, n.t ? new Date(n.t).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit' }) : ''),
-        h('button', { type: 'button', class: 'btn small sq xdel', title: 'Slett', 'aria-label': 'Slett huskelapp', onclick: () => { S.notes.items = S.notes.items.filter(x => x.id !== n.id); queueSave('notes'); renderNotes(); } }, '×')),
-      ta);
+      h('div', { class: 'nhead' }, h('small', {}, n.t ? new Date(n.t).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit' }) : '')),
+      h('div', { class: 'ntext' }, n.text));
   }) : [h('div', { class: 'muted' }, 'Ingen huskelapper ennå.')]));
-  noteList.querySelectorAll('textarea').forEach(fitNote);
 }
 
 /* ---------- sikkerhetskopi ---------- */
