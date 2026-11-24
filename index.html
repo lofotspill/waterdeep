@@ -231,7 +231,7 @@ details.addwrap[open] { padding-bottom: 8px; }
 .pop { position: fixed; z-index: 100000; width: 340px; max-width: calc(100vw - 16px); overflow: auto; display: grid; gap: 8px; align-content: start;
   background: rgba(255,255,255,.84); backdrop-filter: blur(22px) saturate(1.6); -webkit-backdrop-filter: blur(22px) saturate(1.6);
   border: 1px solid var(--edge); border-radius: 20px; padding: 10px; box-shadow: 0 14px 40px rgba(70,50,120,.32); }
-.pop .nlist { max-height: 230px; }
+.pop .nlist { max-height: 320px; }
 .addform[hidden] { display: none; }
 .pop .addform { grid-template-columns: repeat(3, 1fr); margin-top: 0; }
 .pop .addform .wide { grid-column: 1 / -1; }
@@ -1321,8 +1321,9 @@ function placeNpcList() {
   const r = npcQuery.getBoundingClientRect(), vh = window.innerHeight;
   const w = $('#npc').getBoundingClientRect();
   npcList.style.left = w.left + 'px'; npcList.style.width = w.width + 'px';
-  if (vh - r.bottom < 200 && r.top > vh - r.bottom) { npcList.style.top = ''; npcList.style.bottom = (vh - r.top + 6) + 'px'; }
-  else { npcList.style.bottom = ''; npcList.style.top = (r.bottom + 6) + 'px'; }
+  const below = vh - r.bottom - 14, above = r.top - 14;
+  if (below < 380 && above > below) { npcList.style.top = ''; npcList.style.bottom = (vh - r.top + 6) + 'px'; npcList.style.maxHeight = Math.min(400, above) + 'px'; }
+  else { npcList.style.bottom = ''; npcList.style.top = (r.bottom + 6) + 'px'; npcList.style.maxHeight = Math.min(400, below) + 'px'; }
 }
 function renderNpc() {
   if (!npcList) return;
