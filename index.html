@@ -1300,7 +1300,9 @@ const npcShow = md => {
   const name = npcName(md), a = npcAlias(name);
   if (!a) return name;
   const base = npcBase(name).toLowerCase();
-  return a.toLowerCase().split(/\s+/).every(w => base.includes(w)) ? npcBase(name) : name;
+  const words = base.split(/\s+/);
+  if (a.toLowerCase().split(/\s+/).every(w => words.includes(w))) return npcBase(name);
+  return base.includes(a.toLowerCase()) ? a.charAt(0).toUpperCase() + a.slice(1) : name;
 };
 const npcBase = name => name.replace(/\s*\([^)]*\)\s*$/, '').trim() || name;
 const npcSub = md => { const m = /^\s*\*([^*]+)\*\s*$/m.exec(md || ''); return m ? m[1].trim() : ''; };
@@ -1446,7 +1448,7 @@ function secretRows(redraw, withRows) {
 }
 function npcMatches(q) {
   q = q.trim().toLowerCase();
-  const all = S.npcs.list.filter(n => secretOpen || !isSecret(n)).sort((a, b) => npcName(a.md).localeCompare(npcName(b.md), 'nb'));
+  const all = S.npcs.list.filter(n => secretOpen || !isSecret(n)).sort((a, b) => npcShow(a.md).localeCompare(npcShow(b.md), 'nb'));
   if (!q) return all;
   const rank = n => {
     const name = npcName(n.md).toLowerCase(), words = name.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
