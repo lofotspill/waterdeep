@@ -154,6 +154,10 @@ details > summary { cursor: pointer; color: var(--muted); font-size: 12px; font-
 
 /* npc og ark */
 .nlist[hidden] { display: none; }
+.npcdrop { overflow-y: scroll; overscroll-behavior: contain; }
+.npcdrop::-webkit-scrollbar { width: 10px; }
+.npcdrop::-webkit-scrollbar-track { background: rgba(140,110,200,.12); border-radius: 8px; margin: 6px 0; }
+.npcdrop::-webkit-scrollbar-thumb { background: rgba(120,90,190,.55); border-radius: 8px; border: 2px solid rgba(255,255,255,.6); }
 .npcdrop { position: fixed; z-index: 99999; max-height: 190px; padding: 6px; background: rgba(255,255,255,.88); backdrop-filter: blur(22px) saturate(1.6); -webkit-backdrop-filter: blur(22px) saturate(1.6); border: 1px solid var(--edge); border-radius: 16px; box-shadow: 0 12px 34px rgba(70,50,120,.3); scrollbar-width: thin; }
 .nlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 210px; overflow: auto; }
 .nitem { display: block; width: 100%; text-align: left; cursor: pointer; background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.8); border-radius: 14px; padding: 4px 10px; font-weight: 600; }
@@ -1266,7 +1270,7 @@ function placeNpcList() {
   const w = $('#npc').getBoundingClientRect();
   npcList.style.left = w.left + 'px'; npcList.style.width = w.width + 'px';
   npcList.style.bottom = ''; npcList.style.top = (r.bottom + 6) + 'px';
-  npcList.style.maxHeight = Math.max(160, Math.min(400, vh - r.bottom - 14)) + 'px';
+  npcList.style.maxHeight = Math.max(160, Math.min(600, vh - r.bottom - 14)) + 'px';
 }
 function renderNpc() {
   if (!npcList) return;
