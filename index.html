@@ -579,6 +579,199 @@ const fmtLeft = ms => {
 
 /* ---------- ferdige NPC-er som legges til én gang ---------- */
 const SEED_NPCS = [
+  { id: 'npc-tina', md: `# Primatina Ballerina (tina)
+*Small monstrosity, Neutral Good*
+**Armor Class** 13 (natural agility)  
+**Hit Points** 22 (5d6 + 5)  
+**Speed** 40 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 6 (-2) | 16 (+3) | 12 (+1) | 11 (+0) | 13 (+1) | 16 (+3) |
+**Saving Throws** Dex +5  
+**Skills** Acrobatics +7, Performance +5, Perception +3, Stealth +5  
+**Senses** Darkvision 60 ft., passive Perception 13  
+**Languages** Understands Common but cannot speak  
+**Challenge** 1/2 (100 XP)  
+**Proficiency Bonus** +2
+### Traits
+**Uncanny Grace.** Tina can move through the space of any creature that is Medium or larger. She does not provoke opportunity attacks when moving out of an enemy's reach if she has moved at least 10 feet on her turn.
+**Born for the Stage.** Tina has advantage on Dexterity (Acrobatics) and Charisma (Performance) checks involving dancing, balancing or theatrical movement.
+**Tiny Diva, Enormous Ego.** Tina has advantage on saving throws against being frightened. She cannot willingly perform an action that she considers beneath her dignity unless sufficiently motivated.
+### Actions
+**Bite.** *Melee Weapon Attack:* +5 to hit, reach 5 ft., one target. *Hit:* 5 (1d4 + 3) piercing damage.
+**Dramatic Pirouette (Recharge 5–6).** Tina spins in an extravagant pirouette. Each enemy within 5 feet must succeed on a DC 13 Dexterity saving throw or fall prone.
+**The Grand Performance (1/Short Rest).** Tina performs an elaborate dance, accompanied by her little music box. All friendly creatures within 30 feet who can see her gain advantage on their next attack roll or Dexterity saving throw before the end of their next turn.
+### Bonus Actions
+**En Pointe.** Tina takes the Dash, Disengage or Hide action.
+### Reactions
+**A Most Unfortunate Interruption.** When a creature Tina can see makes an attack against an ally within 5 feet of her, she can leap into the attacker's path, forcing the attacker to make the attack roll with disadvantage. She must be able to see the attacker.
+### Appearance & Personality
+Tina is a large, long-legged white rat weighing approximately 10–15 kg. She wears a ragged tutu fashioned from tulle, garbage bags and old curtain fabric, tied around her waist with string. Her tiny copper shoes click against stone, and a silver fork serves as her crown. Her long tail is decorated with an oversized bow, while a little music box is fastened to her belt.
+She is extraordinarily theatrical, self-important and devoted to the art of dance. She expects to be addressed as Primatina Ballerina by her audience and considers being called a mere rat deeply offensive.` },
+  { id: 'npc-goblin-warrior', md: `# Goblin Warrior (goblin)
+*Small Fey, Chaotic Neutral*
+**Armor Class** 15  
+**Hit Points** 10 (3d6)  
+**Speed** 30 ft., climb 15 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 8 (-1) | 15 (+2) | 10 (+0) | 10 (+0) | 8 (-1) | 8 (-1) |
+**Skills** Stealth +6  
+**Senses** Darkvision 60 ft., passive Perception 9  
+**Languages** Common, Goblin  
+**Challenge** 1/4 (50 XP)
+### Actions
+**Scimitar.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) slashing damage, plus 2 (1d4) slashing damage if the attack roll had advantage.
+**Shortbow.** *Ranged Attack Roll:* +4, range 80/320 ft. *Hit:* 5 (1d6 + 2) piercing damage, plus 2 (1d4) piercing damage if the attack roll had advantage.
+### Bonus Actions
+**Nimble Escape.** The goblin takes the Disengage or Hide action.` },
+  { id: 'npc-goblin-boss', md: `# Goblin Boss
+*Small Fey, Chaotic Neutral*
+**Armor Class** 17  
+**Hit Points** 21 (6d6)  
+**Speed** 30 ft., climb 15 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 10 (+0) | 15 (+2) | 10 (+0) | 10 (+0) | 8 (-1) | 10 (+0) |
+**Skills** Stealth +6  
+**Senses** Darkvision 60 ft., passive Perception 9  
+**Languages** Common, Goblin  
+**Challenge** 1 (200 XP)
+### Actions
+**Multiattack.** The goblin makes two attacks, using its Scimitar or Shortbow in any combination.
+**Scimitar.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) slashing damage, plus 2 (1d4) slashing damage if the attack roll had advantage.
+**Shortbow.** *Ranged Attack Roll:* +4, range 80/320 ft. *Hit:* 5 (1d6 + 2) piercing damage, plus 2 (1d4) piercing damage if the attack roll had advantage.
+### Bonus Actions
+**Nimble Escape.** The goblin takes the Disengage or Hide action.
+### Reactions
+**Redirect Attack.** *Trigger:* A creature the goblin can see attacks it. *Response:* The goblin swaps places with a Small or Medium ally within 5 feet of itself, and that ally becomes the target of the attack instead.` },
+  { id: 'npc-bandit', md: `# Bandit
+*Medium or Small Humanoid, Any Alignment*
+**Armor Class** 12  
+**Hit Points** 11 (2d8 + 2)  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 11 (+0) | 12 (+1) | 12 (+1) | 10 (+0) | 10 (+0) | 10 (+0) |
+**Senses** passive Perception 10  
+**Languages** Common, Thieves' cant  
+**Challenge** 1/8 (25 XP)
+### Actions
+**Scimitar.** *Melee Attack Roll:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) slashing damage.
+**Light Crossbow.** *Ranged Attack Roll:* +3, range 80/320 ft. *Hit:* 5 (1d8 + 1) piercing damage.` },
+  { id: 'npc-guard', md: `# Guard
+*Medium or Small Humanoid, Any Alignment*
+**Armor Class** 16  
+**Hit Points** 11 (2d8 + 2)  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 13 (+1) | 12 (+1) | 12 (+1) | 10 (+0) | 11 (+0) | 10 (+0) |
+**Skills** Perception +2  
+**Senses** passive Perception 12  
+**Languages** Common  
+**Challenge** 1/8 (25 XP)
+### Actions
+**Spear.** *Melee or Ranged Attack Roll:* +3, reach 5 ft. or range 20/60 ft. *Hit:* 4 (1d6 + 1) piercing damage.` },
+  { id: 'npc-spy', md: `# Spy
+*Medium or Small Humanoid, Any Alignment*
+**Armor Class** 12  
+**Hit Points** 27 (6d8)  
+**Speed** 30 ft., climb 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 10 (+0) | 15 (+2) | 10 (+0) | 12 (+1) | 14 (+2) | 16 (+3) |
+**Skills** Deception +5, Insight +4, Investigation +5, Perception +6, Sleight of Hand +4, Stealth +6  
+**Senses** passive Perception 16  
+**Languages** Common plus one other language  
+**Challenge** 1 (200 XP)
+### Actions
+**Shortsword.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) piercing damage plus 7 (2d6) poison damage.
+**Hand Crossbow.** *Ranged Attack Roll:* +4, range 30/120 ft. *Hit:* 5 (1d6 + 2) piercing damage plus 7 (2d6) poison damage.
+### Bonus Actions
+**Cunning Action.** The spy takes the Dash, Disengage or Hide action.` },
+  { id: 'npc-bugbear-warrior', md: `# Bugbear Warrior (bugbear)
+*Medium Fey, Chaotic Evil*
+**Armor Class** 14  
+**Hit Points** 33 (6d8 + 6)  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 15 (+2) | 14 (+2) | 13 (+1) | 8 (-1) | 11 (+0) | 9 (-1) |
+**Skills** Stealth +6, Survival +2  
+**Senses** Darkvision 60 ft., passive Perception 10  
+**Languages** Common, Goblin  
+**Challenge** 1 (200 XP)
+### Traits
+**Abduct.** The bugbear doesn't need to spend extra movement to move a creature it is grappling.
+### Actions
+**Grab.** *Melee Attack Roll:* +4, reach 10 ft. *Hit:* 9 (2d6 + 2) bludgeoning damage. If the target is Medium or smaller, it has the Grappled condition (escape DC 12).
+**Light Hammer.** *Melee or Ranged Attack Roll:* +4, reach 10 ft. or range 20/60 ft. *Hit:* 9 (3d4 + 2) bludgeoning damage. The attack has advantage if the target is Grappled by the bugbear.` },
+  { id: 'npc-giant-rat', md: `# Giant Rat (rat)
+*Small Beast, Unaligned*
+**Armor Class** 13  
+**Hit Points** 7 (2d6)  
+**Speed** 30 ft., climb 30 ft., swim 15 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 7 (-2) | 16 (+3) | 11 (+0) | 2 (-4) | 10 (+0) | 4 (-3) |
+**Skills** Perception +2  
+**Senses** Darkvision 60 ft., passive Perception 12  
+**Languages** None  
+**Challenge** 1/8 (25 XP)
+### Traits
+**Pack Tactics.** The rat has advantage on attack rolls against a creature if at least one of the rat's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition.
+### Actions
+**Bite.** *Melee Attack Roll:* +5, reach 5 ft. *Hit:* 5 (1d4 + 3) piercing damage.` },
+  { id: 'npc-swarm-of-rats', md: `# Swarm of Rats (rats)
+*Medium Swarm of Tiny Beasts, Unaligned*
+**Armor Class** 10  
+**Hit Points** 14 (4d8 - 4)  
+**Speed** 30 ft., climb 30 ft., swim 15 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 9 (-1) | 11 (+0) | 9 (-1) | 2 (-4) | 10 (+0) | 3 (-4) |
+**Senses** Darkvision 30 ft., passive Perception 10  
+**Languages** None  
+**Challenge** 1/4 (50 XP)
+### Traits
+**Swarm.** The swarm can occupy another creature's space and vice versa, and the swarm can move through any opening large enough for a Tiny rat. The swarm can't regain Hit Points or gain Temporary Hit Points.
+### Actions
+**Bites.** *Melee Attack Roll:* +2, reach 5 ft. *Hit:* 5 (2d4) piercing damage, or 2 (1d4) piercing damage if the swarm is Bloodied.` },
+  { id: 'npc-crocodile', md: `# Crocodile
+*Large Beast, Unaligned*
+**Armor Class** 12  
+**Hit Points** 13 (2d10 + 2)  
+**Speed** 20 ft., swim 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 15 (+2) | 10 (+0) | 13 (+1) | 2 (-4) | 10 (+0) | 5 (-3) |
+**Skills** Stealth +2  
+**Senses** passive Perception 10  
+**Languages** None  
+**Challenge** 1/2 (100 XP)
+### Traits
+**Hold Breath.** The crocodile can hold its breath for 1 hour.
+### Actions
+**Bite.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 6 (1d8 + 2) piercing damage, and the target has the Grappled condition (escape DC 12). Until the grapple ends, the target has the Restrained condition, and the crocodile can't bite a different target.` },
+  { id: 'npc-gray-ooze', md: `# Gray Ooze (ooze)
+*Medium Ooze, Unaligned*
+**Armor Class** 9  
+**Hit Points** 22 (3d8 + 9)  
+**Speed** 10 ft., climb 10 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 12 (+1) | 6 (-2) | 16 (+3) | 1 (-5) | 6 (-2) | 2 (-4) |
+**Skills** Stealth +2  
+**Damage Resistances** Acid, Cold, Fire  
+**Senses** Blindsight 60 ft., passive Perception 8  
+**Languages** None  
+**Challenge** 1/2 (100 XP)
+### Traits
+**Amorphous.** The ooze can move through a space as narrow as 1 inch without expending extra movement to do so.
+**Corrosive Form.** Nonmagical ammunition that hits the ooze is destroyed after dealing damage. A nonmagical weapon that hits the ooze takes a cumulative −1 penalty to attack rolls and is destroyed at −5. Mending removes the penalty. The ooze can eat through 2-inch-thick nonmagical wood or metal in 1 round.
+### Actions
+**Pseudopod.** *Melee Attack Roll:* +3, reach 5 ft. *Hit:* 10 (2d8 + 1) acid damage. Nonmagical armor worn by the target takes a −1 penalty to the AC it offers, and is destroyed if the penalty reduces its AC to 10.` },
   { id: 'npc-tough', md: `# Tough (Thug)
 *Medium or Small Humanoid, Neutral*
 **Armor Class** 12  
@@ -766,7 +959,7 @@ function setStatus(kind) {
   el.className = 'status';
   const t = { saving: 'Lagrer…', saved: 'Lagret', saved0: 'Lagret', err: 'Kunne ikke lagre', off: 'Offline: lagrede data vises ikke', slow: 'Får ikke kontakt med lagringen' }[kind] || '';
   el.textContent = t;
-  el.hidden = !(kind === 'err' || kind === 'slow' || kind === 'off');
+  el.hidden = !(kind === 'err' || kind === 'slow');
   if (kind === 'saved' || kind === 'saved0') el.classList.add('ok');
   if (kind === 'err' || kind === 'slow') el.classList.add('bad');
   if (kind === 'off') el.classList.add('off');
