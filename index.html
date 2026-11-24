@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DM-skjerm Waterdeep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: tre smale glasskort midt på siden. Valuta og terninger | kamp | bank. Pastell Waterdeep ved skumring. */
+  --ink: #2e2547;
+  --muted: #6c6188;
+  --glass: rgba(255,255,255,.34);
+  --glass2: rgba(255,255,255,.58);
+  --edge: rgba(255,255,255,.72);
+  --accent: #8f63dc;
+  --accent2: #d5679f;
+  --good: #2f9a72;
+  --bad: #d0476a;
+  --display: 'Cinzel', Georgia, serif;
+  --body: 'Quicksand', system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: linear-gradient(#a99be0, #f6b9d2 60%, #ffd8c5);
+  color: var(--ink);
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+}
+.bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.bg svg { width: 100%; height: 100%; display: block; }
+button, input, select { font: inherit; color: inherit; }
+.top {
+  width: 100%; max-width: 1120px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 14px 16px 8px;
+}
+.top { position: relative; justify-content: flex-end; min-height: 52px; }
+.brand { position: absolute; left: 0; right: 0; top: 14px; text-align: center; pointer-events: none; }
+.brand h1 { font-family: var(--display); font-size: 18px; margin: 0; letter-spacing: .08em; color: #fff; line-height: 28px; text-shadow: 0 1px 10px rgba(60,40,110,.45); }
+.brand p { margin: 0; color: rgba(255,255,255,.9); font-size: 12px; text-shadow: 0 1px 8px rgba(60,40,110,.4); }
+.tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.status { font-size: 12px; color: var(--muted); padding: 4px 11px; border-radius: 999px; background: var(--glass2); border: 1px solid var(--edge); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.status.ok { color: var(--good); }
+.status.bad { color: var(--bad); }
+main {
+  flex: 1; min-height: 0; width: 100%; max-width: 1120px; margin: 0 auto;
+  display: grid; grid-template-columns: 236px minmax(0, 1fr) 272px; grid-template-rows: minmax(0, 1fr) 312px; align-items: stretch;
+  gap: 12px; padding: 4px 16px 16px;
+}
+body.loading main { opacity: .75; }
+main > .widget, main > .col { min-height: 0; max-height: none; }
+.g-notes { grid-area: 1 / 1; } .g-init { grid-area: 1 / 2; } .g-bank { grid-area: 1 / 3; }
+.g-left2 { grid-area: 2 / 1; } .g-recap { grid-area: 2 / 2; } .g-rules { grid-area: 2 / 3; }
+#w-npc { flex-shrink: 0; }
+#w-conv { flex: 1 1 auto; }
+.g-recap, .g-rules { overflow: hidden; }
+.recap { overflow: auto; padding-right: 4px; scrollbar-width: thin; }
+.recap p { margin: 0 0 7px; font-size: 13px; line-height: 1.45; }
+.recap p:last-child { margin-bottom: 0; }
+.col { display: flex; flex-direction: column; gap: 12px; min-height: 0; max-height: 100%; }
+.widget {
+  background: linear-gradient(145deg, rgba(255,255,255,.55), rgba(255,255,255,.22));
+  backdrop-filter: blur(22px) saturate(1.6); -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  border: 1px solid var(--edge); border-radius: 26px;
+  padding: 12px 14px; display: flex; flex-direction: column; min-height: 0; max-height: 100%;
+  box-shadow: 0 10px 30px rgba(70,50,120,.22), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -1px 0 rgba(255,255,255,.25);
+}
+.widget h2 { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px 2px; font-weight: 700; }
+.wbody { overflow: auto; min-height: 0; flex: 0 1 auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 6px 4px 4px; margin: -4px -4px -4px -4px; scrollbar-width: thin; scrollbar-color: rgba(120,100,170,.4) transparent; }
+input[type=text], input[type=number], select {
+  background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.85); border-radius: 14px;
+  padding: 6px 10px; min-width: 0; width: 100%;
+  box-shadow: inset 0 1px 3px rgba(70,50,120,.12);
+}
+input::placeholder { color: #9b90b5; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.btn {
+  background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.85); border-radius: 14px;
+  padding: 6px 12px; cursor: pointer; white-space: nowrap; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(70,50,120,.12), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.btn:hover { background: rgba(255,255,255,.8); }
+.btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border-color: rgba(255,255,255,.6); }
+.btn.primary:hover { filter: brightness(1.07); background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+.btn.small { padding: 3px 9px; font-size: 12px; border-radius: 12px; }
+.btn.ghost { background: transparent; box-shadow: none; border-color: transparent; color: #fff; text-shadow: 0 1px 6px rgba(60,40,110,.4); }
+.btn.ghost:hover { background: rgba(255,255,255,.25); }
+.wbody .btn.ghost { color: var(--muted); text-shadow: none; }
+.btn.danger.armed { background: var(--bad); color: #fff; border-color: var(--bad); }
+.row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.row > .grow { flex: 1; min-width: 0; }
+.muted { color: var(--muted); font-size: 12px; }
+.msg { font-size: 12px; min-height: 16px; color: var(--muted); }
+.msg.err { color: var(--bad); }
+.msg.ok { color: var(--good); }
+
+/* valuta */
+.convin { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.units { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.unit { position: relative; cursor: pointer; }
+.unit input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.unit span { display: flex; align-items: center; justify-content: center; gap: 3px; min-width: 40px; padding: 2px 6px; border-radius: 10px; background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.8); font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--muted); }
+.unit input:checked + span { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+.unit input:checked + span::before { content: "✓"; }
+.unit input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+.coinrows { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.coinrow { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.8); border-radius: 16px; padding: 5px 11px; }
+.coinrow b { font-size: 11px; letter-spacing: .1em; color: var(--muted); }
+.coinrow span { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-align: right; }
+.split { font-size: 12px; color: var(--muted); }
+.split b { color: var(--ink); }
+
+/* katalog */
+.cattiles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.cattile { text-align: left; cursor: pointer; background: rgba(255,255,255,.5); border: 1px solid rgba(255,255,255,.85); border-radius: 16px; padding: 8px 10px; box-shadow: 0 2px 8px rgba(70,50,120,.1); }
+.cattile:hover { background: rgba(255,255,255,.85); }
+.cattile strong { display: block; font-size: 14px; }
+.cattile small { color: var(--muted); font-size: 11px; }
+.cattitle { font-size: 14px; }
+.catbar { flex-wrap: wrap; align-items: center; }
+.sortsel { width: auto; margin-left: auto; padding: 3px 8px; font-size: 12px; }
+.itembtn { width: 100%; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.itembtn:hover, .itembtn.sel { background: rgba(255,255,255,.85); }
+.price { white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 13px; }
+.catlist { max-height: 36vh; overflow: auto; }
+.catform { display: grid; gap: 5px; margin-top: 6px; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.tab { background: rgba(255,255,255,.4); border: 1px solid rgba(255,255,255,.8); border-radius: 999px; padding: 3px 12px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.tab[aria-pressed=true] { background: rgba(255,255,255,.9); color: var(--accent); box-shadow: 0 2px 8px rgba(70,50,120,.15); }
+.total { font-size: 22px; font-weight: 700; }
+.total small { font-size: 12px; color: var(--muted); font-weight: 500; }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.tile { background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.8); border-radius: 16px; padding: 3px 4px 4px; text-align: center; }
+.tile label { font-size: 10px; letter-spacing: .12em; color: var(--muted); display: block; font-weight: 700; }
+.tile input { background: transparent; border: 0; box-shadow: none; text-align: center; font-size: 16px; font-weight: 700; padding: 0; font-variant-numeric: tabular-nums; }
+.sub { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 4px 0 0 2px; font-weight: 700; }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.item { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.8); border-radius: 14px; padding: 3px 8px; }
+.item .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.item .nm em { display: block; font-style: normal; color: var(--muted); font-size: 11px; }
+.item .q { min-width: 26px; text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; }
+.log { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+.log time { opacity: .7; margin-right: 6px; }
+details > summary { cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 600; }
+
+/* npc og ark */
+.nlist[hidden] { display: none; }
+.npcdrop { position: fixed; z-index: 99999; max-height: 190px; padding: 6px; background: rgba(255,255,255,.88); backdrop-filter: blur(22px) saturate(1.6); -webkit-backdrop-filter: blur(22px) saturate(1.6); border: 1px solid var(--edge); border-radius: 16px; box-shadow: 0 12px 34px rgba(70,50,120,.3); scrollbar-width: thin; }
+.nlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 210px; overflow: auto; }
+.nitem { display: block; width: 100%; text-align: left; cursor: pointer; background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.8); border-radius: 14px; padding: 4px 10px; font-weight: 600; }
+.nitem.secret { color: var(--muted); letter-spacing: .12em; }
+.ico { display: inline-flex; vertical-align: middle; margin-right: 6px; }
+.btn .ico { margin: 0; }
+.nitem.secret { display: flex; align-items: center; }
+.coderow { display: flex; align-items: center; gap: 4px; }
+.coderow .ico { margin: 0 2px 0 4px; color: var(--muted); }
+.codein { flex: 1; min-width: 0; -webkit-text-security: disc; text-security: disc; }
+.codein.bad { border-color: var(--bad); box-shadow: 0 0 0 2px rgba(179,38,46,.25); }
+.nitem:hover { background: rgba(255,255,255,.8); }
+.nitem small { display: block; color: var(--muted); font-size: 11px; font-weight: 500; }
+.sheet {
+  position: fixed; width: min(400px, calc(100vw - 20px)); max-height: min(80vh, 780px); display: flex; flex-direction: column;
+  background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(255,255,255,.74));
+  backdrop-filter: blur(26px) saturate(1.6); -webkit-backdrop-filter: blur(26px) saturate(1.6);
+  border: 1px solid var(--edge); border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(50,30,100,.38), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.sh-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px 6px 16px; cursor: grab; user-select: none; touch-action: none; }
+.sh-head.grab { cursor: grabbing; }
+.sh-head strong { font-family: var(--display); font-size: 15px; letter-spacing: .02em; }
+.sh-body { overflow: auto; padding: 0 16px 8px; min-height: 0; flex: 1 1 auto; }
+.sh-body p { margin: 4px 0; line-height: 1.38; font-size: 13px; }
+.sh-body textarea { width: 100%; min-height: 300px; resize: vertical; font: 12px/1.4 ui-monospace, Menlo, monospace; background: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.9); border-radius: 14px; padding: 8px 10px; box-shadow: inset 0 1px 3px rgba(70,50,120,.12); color: var(--ink); }
+.sh-bar { display: flex; gap: 6px; padding: 4px 16px 12px; flex-wrap: wrap; }
+h4.sec { font-family: var(--display); font-size: 13px; letter-spacing: .04em; color: var(--accent); margin: 10px 0 3px; padding-bottom: 2px; border-bottom: 1px solid rgba(143,99,220,.3); }
+table.abil { width: 100%; border-collapse: collapse; text-align: center; margin: 8px 0; }
+table.abil th { font-size: 10px; letter-spacing: .1em; color: var(--muted); font-weight: 700; padding: 2px 0; }
+table.abil td { font-size: 13px; font-weight: 700; padding: 2px 0; }
+
+/* kamp */
+.cbar { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.round { font-size: 15px; font-weight: 700; color: var(--accent); margin-right: 2px; }
+details.addwrap { background: rgba(255,255,255,.3); border: 1px solid rgba(255,255,255,.7); border-radius: 16px; padding: 4px 11px; }
+details.addwrap[open] { padding-bottom: 8px; }
+.addform { display: grid; grid-template-columns: minmax(80px, 2fr) 46px 46px 46px 54px 46px 92px auto; gap: 5px; align-items: end; margin-top: 6px; }
+.addform label { display: grid; gap: 1px; font-size: 10px; letter-spacing: .06em; color: var(--muted); font-weight: 700; text-transform: uppercase; }
+.addform input, .addform select { padding: 5px 7px; }
+.clist { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.cb {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.8); border-radius: 18px; padding: 4px 10px 4px 14px;
+  position: relative;
+}
+.cb::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 4px; background: #bbb; }
+.cb.pc::before { background: #3fb5a3; }
+.cb.npc::before { background: #3fb5a3; }
+.cb.monster { background: rgba(140,100,205,.30); border-color: rgba(185,155,240,.75); }
+.cb.monster::before { background: #8a5fd0; }
+.cb.monster.active { background: rgba(170,135,230,.55); }
+.cb.active { background: rgba(255,255,255,.85); border-color: var(--accent); box-shadow: 0 4px 16px rgba(143,99,220,.3); }
+.cb.dead { opacity: .5; filter: grayscale(1); }
+.cb.dead .nm strong { text-decoration: line-through; color: var(--muted); }
+.cb .init { width: 46px; text-align: center; font-size: 16px; font-weight: 700; padding: 3px; }
+.cb .nm { flex: 1; min-width: 96px; }
+.cb .nm strong { font-size: 15px; }
+.cb .nm small { color: var(--muted); margin-left: 6px; font-size: 11px; }
+.nm1 { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.tag { border: 0; background: rgba(120,90,190,.16); color: #5a3da0; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-radius: 999px; padding: 1px 7px; cursor: pointer; }
+.tag.monster { background: rgba(110,70,190,.28); }
+.conc { width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(120,100,170,.35); background: rgba(255,255,255,.4); color: var(--muted); font-size: 11px; font-weight: 700; line-height: 1; padding: 0; cursor: pointer; }
+.conc.on { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border-color: rgba(255,255,255,.7); }
+.chips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
+.chip { border: 0; background: rgba(208,71,106,.16); color: #a3304f; font-size: 10px; font-weight: 700; border-radius: 999px; padding: 1px 7px; cursor: pointer; }
+.ds { display: flex; align-items: center; gap: 4px; margin-top: 3px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ds span { margin-right: 2px; white-space: nowrap; }
+.ds i { width: 6px; }
+.dot { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid rgba(120,100,170,.5); background: rgba(255,255,255,.5); padding: 0; cursor: pointer; }
+.dot.ok.on { background: var(--good); border-color: var(--good); }
+.dot.bad.on { background: var(--bad); border-color: var(--bad); }
+.condbtn { min-width: 30px; padding: 2px 6px; }
+.condbtn.on { background: rgba(208,71,106,.18); color: #a3304f; border-color: rgba(208,71,106,.4); }
+.pop { position: fixed; z-index: 100000; width: 340px; max-width: calc(100vw - 16px); overflow: auto; display: grid; gap: 8px; align-content: start;
+  background: rgba(255,255,255,.84); backdrop-filter: blur(22px) saturate(1.6); -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  border: 1px solid var(--edge); border-radius: 20px; padding: 10px; box-shadow: 0 14px 40px rgba(70,50,120,.32); }
+.pop .nlist { max-height: 230px; }
+.addform[hidden] { display: none; }
+.pop .addform { grid-template-columns: repeat(3, 1fr); margin-top: 0; }
+.pop .addform .wide { grid-column: 1 / -1; }
+.pop .cnt { width: 62px; flex: none; }
+.condgrid { display: flex; flex-wrap: wrap; gap: 5px; }
+.condopt { cursor: pointer; border: 1px solid rgba(255,255,255,.85); background: rgba(255,255,255,.55); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
+.condopt:hover { background: rgba(255,255,255,.9); }
+.condopt.on { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border-color: rgba(255,255,255,.6); }
+.stats { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.mf { display: grid; gap: 1px; justify-items: center; text-align: center; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.mf span { padding: 0; width: 100%; text-align: center; }
+.cb input[type=number]::-webkit-inner-spin-button, .cb input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.cb input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+.cb input.s { width: 48px; text-align: center; padding: 2px 4px; font-size: 13px; }
+.cb input.s.wide { width: 62px; }
+.hpp { display: inline-flex; align-items: center; gap: 3px; }
+.hpp i { font-style: normal; color: var(--muted); }
+.hit { display: inline-flex; align-items: center; gap: 3px; }
+.btn.xdel { color: var(--bad); font-weight: 700; }
+.btn.xdel:hover { background: var(--bad); color: #fff; border-color: var(--bad); }
+.btn.sq { padding: 2px 0; width: 26px; text-align: center; }
+.empty { color: var(--muted); padding: 14px 6px; text-align: center; }
+
+/* økt, huskelapper, regler */
+.clock { padding: 0 4px; }
+.ctime { font-size: 22px; font-variant-numeric: tabular-nums; }
+.cdate { font-size: 14px; color: var(--ink); font-weight: 700; }
+.notelist { display: grid; gap: 6px; }
+.nhdr { display: grid; gap: 6px; }
+.note { border-radius: 14px; padding: 4px 8px 6px; border: 1px solid rgba(255,255,255,.85); box-shadow: 0 2px 8px rgba(70,50,120,.1); }
+.note.c0 { background: rgba(255,238,170,.62); }
+.note.c1 { background: rgba(255,200,222,.6); }
+.note.c2 { background: rgba(196,238,214,.62); }
+.note.c3 { background: rgba(200,218,255,.62); }
+.nhead { display: flex; align-items: center; justify-content: space-between; }
+.nhead small { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; }
+.nhead .btn { width: 22px; height: 22px; padding: 0; line-height: 1; font-size: 13px; }
+.ntext { width: 100%; resize: none; border: 0; background: transparent; font: inherit; font-size: 13px; line-height: 1.35; padding: 0; overflow: hidden; color: var(--ink); }
+.ntext:focus { outline: none; }
+.rulehead { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; width: 100%; text-align: left; cursor: pointer; background: none; border: 0; padding: 2px 0; }
+.rulehead em { font-style: normal; color: var(--muted); font-size: 11px; }
+.item.rule { display: block; padding: 2px 10px; }
+.item.rule:hover, .item.rule.open { background: rgba(255,255,255,.8); }
+.rtext { margin: 0 0 4px; font-size: 12px; line-height: 1.4; color: var(--ink); }
+#w-rules .cattile, #w-bank .cattile { padding: 5px 9px; border-radius: 14px; }
+#w-rules .cattile strong, #w-bank .cattile strong { font-size: 13px; }
+#w-rules .cattiles, #w-bank .cattiles { gap: 5px; }
+
+@media (max-width: 960px) {
+  html, body { height: auto; min-height: 100%; }
+  .brand { position: static; width: 100%; order: -1; }
+  main { grid-template-columns: 1fr; }
+  .wbody { overflow: visible; }
+  main { align-items: stretch; }
+  .widget, .col { max-height: none; }
+  main { grid-template-rows: none; }
+  main > .widget, main > .col { grid-area: auto; }
+
+  .addform { grid-template-columns: repeat(3, 1fr); }
+  .addform .wide { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn, .tab { transition: background .15s, filter .15s; }
+}
+</style>
+</head>
+<body class="loading">
+<div class="bg" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" role="presentation"><defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a99be0"/><stop offset=".38" stop-color="#d7a8e2"/><stop offset=".62" stop-color="#f6b9d2"/><stop offset=".84" stop-color="#ffd8c5"/><stop offset="1" stop-color="#ffe9d2"/></linearGradient>
+<linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d3a9dc"/><stop offset="1" stop-color="#8d86cf"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#fff3df" stop-opacity=".9"/><stop offset="1" stop-color="#fff3df" stop-opacity="0"/></radialGradient>
+</defs><rect width="1600" height="900" fill="url(#sky)"/><circle cx="518" cy="58" r="1" fill="#fff" opacity="0.39"/><circle cx="857" cy="127" r="1" fill="#fff" opacity="0.85"/><circle cx="344" cy="38" r="2" fill="#fff" opacity="0.39"/><circle cx="145" cy="146" r="1" fill="#fff" opacity="0.87"/><circle cx="1009" cy="197" r="1" fill="#fff" opacity="0.67"/><circle cx="635" cy="322" r="1" fill="#fff" opacity="0.66"/><circle cx="213" cy="144" r="1" fill="#fff" opacity="0.66"/><circle cx="896" cy="228" r="1" fill="#fff" opacity="0.67"/><circle cx="1022" cy="129" r="1" fill="#fff" opacity="0.66"/><circle cx="990" cy="169" r="2" fill="#fff" opacity="0.78"/><circle cx="745" cy="306" r="1.6" fill="#fff" opacity="0.51"/><circle cx="1271" cy="234" r="1.2" fill="#fff" opacity="0.40"/><circle cx="480" cy="168" r="1.6" fill="#fff" opacity="0.75"/><circle cx="461" cy="324" r="1" fill="#fff" opacity="0.63"/><circle cx="264" cy="119" r="2" fill="#fff" opacity="0.58"/><circle cx="1539" cy="35" r="1.6" fill="#fff" opacity="0.54"/><circle cx="560" cy="169" r="2" fill="#fff" opacity="0.39"/><circle cx="150" cy="96" r="1" fill="#fff" opacity="0.38"/><circle cx="1122" cy="217" r="2" fill="#fff" opacity="0.51"/><circle cx="617" cy="224" r="1" fill="#fff" opacity="0.87"/><circle cx="569" cy="205" r="2" fill="#fff" opacity="0.38"/><circle cx="1229" cy="51" r="1.2" fill="#fff" opacity="0.57"/><circle cx="1467" cy="169" r="1.2" fill="#fff" opacity="0.60"/><circle cx="879" cy="293" r="2" fill="#fff" opacity="0.83"/><circle cx="445" cy="143" r="1.6" fill="#fff" opacity="0.73"/><circle cx="609" cy="84" r="1" fill="#fff" opacity="0.45"/><circle cx="371" cy="85" r="2" fill="#fff" opacity="0.81"/><circle cx="292" cy="100" r="1.2" fill="#fff" opacity="0.58"/><circle cx="591" cy="191" r="1.2" fill="#fff" opacity="0.73"/><circle cx="825" cy="208" r="1" fill="#fff" opacity="0.60"/><circle cx="1394" cy="315" r="2" fill="#fff" opacity="0.57"/><circle cx="631" cy="164" r="2" fill="#fff" opacity="0.38"/><circle cx="108" cy="77" r="1.2" fill="#fff" opacity="0.41"/><circle cx="961" cy="43" r="1.2" fill="#fff" opacity="0.65"/><circle cx="1518" cy="206" r="1" fill="#fff" opacity="0.83"/><circle cx="983" cy="58" r="1.6" fill="#fff" opacity="0.88"/><circle cx="964" cy="162" r="1" fill="#fff" opacity="0.82"/><circle cx="1589" cy="159" r="2" fill="#fff" opacity="0.52"/><circle cx="231" cy="250" r="1.6" fill="#fff" opacity="0.61"/><circle cx="1107" cy="175" r="1.2" fill="#fff" opacity="0.87"/><circle cx="1230" cy="170" r="150" fill="url(#glow)"/><circle cx="1230" cy="170" r="52" fill="#fff6e6"/><circle cx="1214" cy="158" r="9" fill="#f3e3d4" opacity=".6"/><circle cx="1246" cy="186" r="6" fill="#f3e3d4" opacity=".5"/><g opacity=".38" fill="#fff"><ellipse cx="300" cy="190" rx="90" ry="20"/><ellipse cx="340" cy="176" rx="50" ry="18"/><ellipse cx="254" cy="182" rx="40" ry="14"/></g><g opacity=".38" fill="#fff"><ellipse cx="760" cy="120" rx="72" ry="16"/><ellipse cx="792" cy="109" rx="40" ry="14"/><ellipse cx="723" cy="114" rx="32" ry="11"/></g><g opacity=".38" fill="#fff"><ellipse cx="980" cy="300" rx="99" ry="22"/><ellipse cx="1024" cy="285" rx="55" ry="20"/><ellipse cx="929" cy="291" rx="44" ry="15"/></g><g opacity=".38" fill="#fff"><ellipse cx="1450" cy="330" rx="81" ry="18"/><ellipse cx="1486" cy="317" rx="45" ry="16"/><ellipse cx="1409" cy="323" rx="36" ry="13"/></g><g opacity=".38" fill="#fff"><ellipse cx="120" cy="360" rx="72" ry="16"/><ellipse cx="152" cy="349" rx="40" ry="14"/><ellipse cx="83" cy="354" rx="32" ry="11"/></g><path d="M380 640 L700 380 L820 450 L1010 250 L1160 400 L1300 330 L1600 560 L1600 700 L380 700Z" fill="#b6a8e6" opacity=".55"/><path d="M560 660 L880 300 L1000 380 L1120 270 L1420 600 L1420 700 L560 700Z" fill="#9d8fd6" opacity=".6"/><path d="M880 300 L930 345 L900 350 L880 335 L850 352 L836 340Z" fill="#fff" opacity=".5"/><path d="M1120 270 L1160 310 L1135 314 L1120 300 L1100 316 L1086 304Z" fill="#fff" opacity=".45"/><g fill="#a393d6" opacity="0.75"><rect x="-20" y="606" width="32" height="144" rx="2"/><polygon points="-23,606 -4,577 15,606"/><rect x="14" y="644" width="42" height="106" rx="2"/><polygon points="11,644 35,606 59,644"/><rect x="60" y="630" width="33" height="120" rx="2"/><rect x="58" y="624" width="37" height="8" rx="2"/><rect x="93" y="610" width="48" height="140" rx="2"/><ellipse cx="117" cy="610" rx="24" ry="20"/><rect x="139" y="577" width="43" height="173" rx="2"/><rect x="149" y="538" width="23" height="40" rx="2"/><polygon points="146,538 161,507 175,538"/><rect x="184" y="585" width="28" height="165" rx="2"/><rect x="191" y="556" width="15" height="29" rx="2"/><polygon points="188,556 198,536 209,556"/><rect x="209" y="608" width="49" height="142" rx="2"/><ellipse cx="233" cy="608" rx="24" ry="20"/><rect x="262" y="571" width="45" height="179" rx="2"/><rect x="272" y="529" width="25" height="41" rx="2"/><polygon points="269,529 284,498 299,529"/><rect x="307" y="573" width="50" height="177" rx="2"/><polygon points="304,573 332,528 360,573"/><rect x="355" y="565" width="32" height="185" rx="2"/><rect x="362" y="528" width="17" height="37" rx="2"/><polygon points="359,528 371,506 383,528"/><rect x="386" y="611" width="39" height="139" rx="2"/><polygon points="383,611 406,576 429,611"/><rect x="427" y="569" width="41" height="181" rx="2"/><ellipse cx="448" cy="569" rx="21" ry="17"/><rect x="473" y="561" width="48" height="189" rx="2"/><ellipse cx="497" cy="561" rx="24" ry="20"/><rect x="519" y="562" width="48" height="188" rx="2"/><rect x="517" y="556" width="52" height="8" rx="2"/><rect x="569" y="621" width="45" height="129" rx="2"/><rect x="567" y="615" width="49" height="8" rx="2"/><rect x="615" y="632" width="33" height="118" rx="2"/><rect x="613" y="626" width="37" height="8" rx="2"/><rect x="654" y="572" width="28" height="178" rx="2"/><rect x="660" y="547" width="16" height="26" rx="2"/><polygon points="657,547 668,527 679,547"/><rect x="681" y="566" width="46" height="184" rx="2"/><polygon points="678,566 704,525 730,566"/><rect x="729" y="578" width="27" height="172" rx="2"/><polygon points="726,578 743,553 760,578"/><rect x="761" y="594" width="51" height="156" rx="2"/><rect x="759" y="588" width="55" height="8" rx="2"/><rect x="812" y="585" width="28" height="165" rx="2"/><polygon points="809,585 826,560 843,585"/><rect x="838" y="584" width="37" height="166" rx="2"/><polygon points="835,584 856,551 878,584"/><rect x="872" y="607" width="49" height="143" rx="2"/><rect x="870" y="601" width="53" height="8" rx="2"/><rect x="925" y="594" width="36" height="156" rx="2"/><rect x="933" y="557" width="20" height="37" rx="2"/><polygon points="930,557 943,531 956,557"/><rect x="962" y="581" width="41" height="169" rx="2"/><rect x="960" y="575" width="45" height="8" rx="2"/><rect x="1004" y="572" width="37" height="178" rx="2"/><polygon points="1001,572 1023,538 1044,572"/><rect x="1041" y="587" width="51" height="163" rx="2"/><rect x="1052" y="565" width="28" height="22" rx="2"/><polygon points="1049,565 1066,528 1083,565"/><rect x="1092" y="626" width="41" height="124" rx="2"/><rect x="1102" y="589" width="23" height="37" rx="2"/><polygon points="1099,589 1113,560 1127,589"/><rect x="1131" y="590" width="42" height="160" rx="2"/><ellipse cx="1152" cy="590" rx="21" ry="18"/><rect x="1173" y="567" width="44" height="183" rx="2"/><polygon points="1170,567 1195,527 1220,567"/><rect x="1215" y="548" width="44" height="202" rx="2"/><polygon points="1212,548 1237,509 1262,548"/><rect x="1259" y="599" width="41" height="151" rx="2"/><polygon points="1256,599 1280,562 1304,599"/><rect x="1300" y="576" width="36" height="174" rx="2"/><polygon points="1297,576 1318,544 1339,576"/><rect x="1336" y="621" width="46" height="129" rx="2"/><rect x="1346" y="581" width="25" height="40" rx="2"/><polygon points="1343,581 1359,548 1374,581"/><rect x="1381" y="558" width="32" height="192" rx="2"/><polygon points="1378,558 1397,529 1416,558"/><rect x="1412" y="566" width="37" height="184" rx="2"/><polygon points="1409,566 1430,532 1452,566"/><rect x="1448" y="554" width="35" height="196" rx="2"/><rect x="1456" y="511" width="19" height="43" rx="2"/><polygon points="1453,511 1466,487 1478,511"/><rect x="1481" y="568" width="35" height="182" rx="2"/><rect x="1479" y="562" width="39" height="8" rx="2"/><rect x="1517" y="610" width="32" height="140" rx="2"/><rect x="1524" y="583" width="18" height="27" rx="2"/><polygon points="1521,583 1533,560 1545,583"/><rect x="1552" y="604" width="48" height="146" rx="2"/><polygon points="1549,604 1576,561 1603,604"/><rect x="1603" y="553" width="43" height="197" rx="2"/><polygon points="1600,553 1625,515 1649,553"/></g><g fill="#8575c4" opacity="0.9"><rect x="-20" y="591" width="47" height="184" rx="2"/><rect x="-22" y="585" width="51" height="8" rx="2"/><rect x="27" y="609" width="35" height="166" rx="2"/><rect x="35" y="587" width="19" height="22" rx="2"/><polygon points="32,587 45,562 58,587"/><rect x="61" y="650" width="47" height="125" rx="2"/><polygon points="58,650 84,608 110,650"/><rect x="106" y="592" width="56" height="183" rx="2"/><rect x="104" y="586" width="60" height="8" rx="2"/><rect x="166" y="628" width="42" height="147" rx="2"/><rect x="175" y="589" width="23" height="39" rx="2"/><polygon points="172,589 187,559 202,589"/><rect x="205" y="640" width="29" height="135" rx="2"/><rect x="203" y="634" width="33" height="8" rx="2"/><rect x="236" y="647" width="51" height="128" rx="2"/><ellipse cx="262" cy="647" rx="26" ry="22"/><rect x="292" y="624" width="44" height="151" rx="2"/><polygon points="289,624 314,584 339,624"/><rect x="336" y="595" width="35" height="180" rx="2"/><rect x="334" y="589" width="39" height="8" rx="2"/><rect x="375" y="580" width="32" height="195" rx="2"/><rect x="373" y="574" width="36" height="8" rx="2"/><rect x="406" y="552" width="42" height="223" rx="2"/><rect x="404" y="546" width="46" height="8" rx="2"/><rect x="448" y="613" width="32" height="162" rx="2"/><rect x="446" y="607" width="36" height="8" rx="2"/><rect x="484" y="614" width="54" height="161" rx="2"/><rect x="482" y="608" width="58" height="8" rx="2"/><rect x="540" y="554" width="37" height="221" rx="2"/><ellipse cx="559" cy="554" rx="18" ry="15"/><rect x="581" y="567" width="47" height="208" rx="2"/><polygon points="578,567 604,525 631,567"/><rect x="629" y="629" width="44" height="146" rx="2"/><rect x="627" y="623" width="48" height="8" rx="2"/><rect x="674" y="567" width="47" height="208" rx="2"/><ellipse cx="697" cy="567" rx="23" ry="20"/><rect x="721" y="637" width="35" height="138" rx="2"/><polygon points="718,637 738,606 759,637"/><rect x="758" y="618" width="46" height="157" rx="2"/><rect x="756" y="612" width="50" height="8" rx="2"/><rect x="801" y="606" width="44" height="169" rx="2"/><rect x="811" y="561" width="24" height="45" rx="2"/><polygon points="808,561 823,530 839,561"/><rect x="850" y="604" width="46" height="171" rx="2"/><rect x="848" y="598" width="50" height="8" rx="2"/><rect x="895" y="540" width="37" height="235" rx="2"/><polygon points="892,540 914,507 935,540"/><rect x="932" y="538" width="38" height="237" rx="2"/><rect x="941" y="509" width="21" height="29" rx="2"/><polygon points="938,509 951,482 965,509"/><rect x="974" y="582" width="28" height="193" rx="2"/><polygon points="971,582 988,556 1005,582"/><rect x="1001" y="587" width="46" height="188" rx="2"/><ellipse cx="1024" cy="587" rx="23" ry="19"/><rect x="1048" y="558" width="39" height="217" rx="2"/><rect x="1057" y="536" width="21" height="23" rx="2"/><polygon points="1054,536 1068,508 1081,536"/><rect x="1090" y="574" width="41" height="201" rx="2"/><ellipse cx="1111" cy="574" rx="20" ry="17"/><rect x="1130" y="548" width="37" height="227" rx="2"/><polygon points="1127,548 1148,514 1170,548"/><rect x="1165" y="575" width="42" height="200" rx="2"/><rect x="1174" y="545" width="23" height="30" rx="2"/><polygon points="1171,545 1186,514 1201,545"/><rect x="1210" y="528" width="57" height="247" rx="2"/><ellipse cx="1239" cy="528" rx="29" ry="24"/><rect x="1266" y="622" width="47" height="153" rx="2"/><polygon points="1263,622 1289,580 1315,622"/><rect x="1314" y="531" width="43" height="244" rx="2"/><polygon points="1311,531 1335,493 1360,531"/><rect x="1358" y="549" width="36" height="226" rx="2"/><rect x="1366" y="523" width="20" height="25" rx="2"/><polygon points="1363,523 1376,498 1389,523"/><rect x="1391" y="614" width="48" height="161" rx="2"/><polygon points="1388,614 1415,570 1442,614"/><rect x="1438" y="553" width="57" height="222" rx="2"/><polygon points="1435,553 1466,502 1497,553"/><rect x="1492" y="555" width="53" height="220" rx="2"/><rect x="1490" y="549" width="57" height="8" rx="2"/><rect x="1544" y="529" width="29" height="246" rx="2"/><rect x="1550" y="489" width="16" height="40" rx="2"/><polygon points="1547,489 1558,468 1570,489"/><rect x="1571" y="601" width="33" height="174" rx="2"/><polygon points="1568,601 1587,572 1607,601"/><rect x="1603" y="568" width="35" height="207" rx="2"/><polygon points="1600,568 1620,537 1641,568"/></g><g fill="#ffe08e" opacity=".9"><rect x="9" y="698" width="4" height="6" rx="1.5"/><rect x="98" y="671" width="4" height="6" rx="1.5"/><rect x="102" y="701" width="4" height="6" rx="1.5"/><rect x="152" y="634" width="4" height="6" rx="1.5"/><rect x="119" y="619" width="4" height="6" rx="1.5"/><rect x="125" y="665" width="4" height="6" rx="1.5"/><rect x="142" y="638" width="4" height="6" rx="1.5"/><rect x="173" y="702" width="4" height="6" rx="1.5"/><rect x="195" y="694" width="4" height="6" rx="1.5"/><rect x="229" y="669" width="4" height="6" rx="1.5"/><rect x="274" y="695" width="4" height="6" rx="1.5"/><rect x="280" y="662" width="4" height="6" rx="1.5"/><rect x="266" y="698" width="4" height="6" rx="1.5"/><rect x="303" y="641" width="4" height="6" rx="1.5"/><rect x="320" y="699" width="4" height="6" rx="1.5"/><rect x="298" y="699" width="4" height="6" rx="1.5"/><rect x="353" y="645" width="4" height="6" rx="1.5"/><rect x="364" y="610" width="4" height="6" rx="1.5"/><rect x="394" y="675" width="4" height="6" rx="1.5"/><rect x="442" y="624" width="4" height="6" rx="1.5"/><rect x="434" y="627" width="4" height="6" rx="1.5"/><rect x="475" y="669" width="4" height="6" rx="1.5"/><rect x="461" y="631" width="4" height="6" rx="1.5"/><rect x="561" y="567" width="4" height="6" rx="1.5"/><rect x="552" y="651" width="4" height="6" rx="1.5"/><rect x="659" y="676" width="4" height="6" rx="1.5"/><rect x="705" y="582" width="4" height="6" rx="1.5"/><rect x="695" y="650" width="4" height="6" rx="1.5"/><rect x="704" y="648" width="4" height="6" rx="1.5"/><rect x="734" y="656" width="4" height="6" rx="1.5"/><rect x="727" y="667" width="4" height="6" rx="1.5"/><rect x="763" y="652" width="4" height="6" rx="1.5"/><rect x="828" y="643" width="4" height="6" rx="1.5"/><rect x="888" y="641" width="4" height="6" rx="1.5"/><rect x="907" y="679" width="4" height="6" rx="1.5"/><rect x="996" y="661" width="4" height="6" rx="1.5"/><rect x="1028" y="658" width="4" height="6" rx="1.5"/><rect x="1034" y="623" width="4" height="6" rx="1.5"/><rect x="1019" y="622" width="4" height="6" rx="1.5"/><rect x="1079" y="629" width="4" height="6" rx="1.5"/><rect x="1157" y="639" width="4" height="6" rx="1.5"/><rect x="1195" y="644" width="4" height="6" rx="1.5"/><rect x="1217" y="651" width="4" height="6" rx="1.5"/><rect x="1222" y="621" width="4" height="6" rx="1.5"/><rect x="1284" y="637" width="4" height="6" rx="1.5"/><rect x="1275" y="650" width="4" height="6" rx="1.5"/><rect x="1321" y="631" width="4" height="6" rx="1.5"/><rect x="1337" y="621" width="4" height="6" rx="1.5"/><rect x="1398" y="655" width="4" height="6" rx="1.5"/><rect x="1459" y="589" width="4" height="6" rx="1.5"/><rect x="1471" y="600" width="4" height="6" rx="1.5"/><rect x="1516" y="649" width="4" height="6" rx="1.5"/><rect x="1514" y="576" width="4" height="6" rx="1.5"/><rect x="1561" y="593" width="4" height="6" rx="1.5"/><rect x="1585" y="656" width="4" height="6" rx="1.5"/><rect x="1582" y="627" width="4" height="6" rx="1.5"/><rect x="1625" y="634" width="4" height="6" rx="1.5"/></g><g fill="#6a5aab"><rect x="360" y="470" width="150" height="260" rx="4"/><rect x="340" y="430" width="44" height="300" rx="3"/><rect x="486" y="440" width="44" height="290" rx="3"/><polygon points="334,430 362,360 390,430"/><polygon points="480,440 508,370 536,440"/><rect x="410" y="400" width="52" height="80" rx="3"/><polygon points="404,400 436,330 468,400"/></g><g fill="#ffe08e" opacity=".95"><rect x="352" y="470" width="6" height="10" rx="2"/><rect x="498" y="480" width="6" height="10" rx="2"/><rect x="430" y="430" width="7" height="12" rx="3"/><rect x="400" y="540" width="6" height="10" rx="2"/><rect x="450" y="560" width="6" height="10" rx="2"/><rect x="420" y="620" width="6" height="10" rx="2"/></g><g fill="#5f509c" opacity="1"><rect x="-20" y="638" width="45" height="182" rx="2"/><rect x="-22" y="632" width="49" height="8" rx="2"/><rect x="23" y="624" width="58" height="196" rx="2"/><polygon points="20,624 52,572 84,624"/><rect x="81" y="643" width="59" height="177" rx="2"/><ellipse cx="110" cy="643" rx="29" ry="25"/><rect x="143" y="607" width="44" height="213" rx="2"/><rect x="153" y="562" width="24" height="45" rx="2"/><polygon points="150,562 165,531 180,562"/><rect x="190" y="690" width="39" height="130" rx="2"/><polygon points="187,690 209,655 232,690"/><rect x="232" y="638" width="36" height="182" rx="2"/><rect x="240" y="612" width="20" height="27" rx="2"/><polygon points="237,612 250,586 263,612"/><rect x="268" y="612" width="63" height="208" rx="2"/><polygon points="265,612 299,555 334,612"/><rect x="328" y="636" width="33" height="184" rx="2"/><polygon points="325,636 345,606 364,636"/><rect x="365" y="683" width="36" height="137" rx="2"/><rect x="363" y="677" width="40" height="8" rx="2"/><rect x="406" y="634" width="60" height="186" rx="2"/><rect x="419" y="609" width="33" height="24" rx="2"/><polygon points="416,609 436,566 455,609"/><rect x="467" y="632" width="59" height="188" rx="2"/><polygon points="464,632 497,579 529,632"/><rect x="531" y="624" width="52" height="196" rx="2"/><rect x="543" y="599" width="29" height="25" rx="2"/><polygon points="540,599 557,561 575,599"/><rect x="583" y="692" width="64" height="128" rx="2"/><rect x="598" y="652" width="35" height="40" rx="2"/><polygon points="595,652 615,606 636,652"/><rect x="649" y="658" width="51" height="162" rx="2"/><rect x="660" y="621" width="28" height="37" rx="2"/><polygon points="657,621 674,585 691,621"/><rect x="704" y="617" width="33" height="203" rx="2"/><polygon points="701,617 720,588 739,617"/><rect x="741" y="699" width="39" height="121" rx="2"/><polygon points="738,699 760,664 783,699"/><rect x="784" y="627" width="41" height="193" rx="2"/><polygon points="781,627 804,590 828,627"/><rect x="824" y="645" width="35" height="175" rx="2"/><rect x="822" y="639" width="39" height="8" rx="2"/><rect x="858" y="654" width="37" height="166" rx="2"/><ellipse cx="877" cy="654" rx="19" ry="16"/><rect x="893" y="695" width="60" height="125" rx="2"/><ellipse cx="923" cy="695" rx="30" ry="25"/><rect x="953" y="628" width="51" height="192" rx="2"/><rect x="951" y="622" width="55" height="8" rx="2"/><rect x="1004" y="623" width="42" height="197" rx="2"/><rect x="1013" y="587" width="23" height="37" rx="2"/><polygon points="1010,587 1024,557 1039,587"/><rect x="1048" y="650" width="34" height="170" rx="2"/><ellipse cx="1065" cy="650" rx="17" ry="14"/><rect x="1083" y="677" width="52" height="143" rx="2"/><ellipse cx="1109" cy="677" rx="26" ry="22"/><rect x="1135" y="606" width="61" height="214" rx="2"/><polygon points="1132,606 1165,551 1199,606"/><rect x="1194" y="643" width="35" height="177" rx="2"/><ellipse cx="1211" cy="643" rx="18" ry="15"/><rect x="1228" y="668" width="48" height="152" rx="2"/><ellipse cx="1252" cy="668" rx="24" ry="20"/><rect x="1280" y="642" width="63" height="178" rx="2"/><rect x="1294" y="616" width="35" height="27" rx="2"/><polygon points="1291,616 1311,571 1331,616"/><rect x="1344" y="595" width="44" height="225" rx="2"/><rect x="1342" y="589" width="48" height="8" rx="2"/><rect x="1390" y="686" width="61" height="134" rx="2"/><ellipse cx="1420" cy="686" rx="31" ry="26"/><rect x="1450" y="652" width="48" height="168" rx="2"/><polygon points="1447,652 1474,609 1501,652"/><rect x="1502" y="619" width="38" height="201" rx="2"/><rect x="1500" y="613" width="42" height="8" rx="2"/><rect x="1544" y="674" width="35" height="146" rx="2"/><ellipse cx="1561" cy="674" rx="17" ry="15"/><rect x="1578" y="698" width="53" height="122" rx="2"/><polygon points="1575,698 1605,650 1635,698"/></g><g fill="#ffe08e" opacity=".9"><rect x="13" y="660" width="4" height="6" rx="1.5"/><rect x="57" y="654" width="4" height="6" rx="1.5"/><rect x="53" y="643" width="4" height="6" rx="1.5"/><rect x="40" y="639" width="4" height="6" rx="1.5"/><rect x="110" y="721" width="4" height="6" rx="1.5"/><rect x="127" y="725" width="4" height="6" rx="1.5"/><rect x="97" y="684" width="4" height="6" rx="1.5"/><rect x="176" y="619" width="4" height="6" rx="1.5"/><rect x="223" y="742" width="4" height="6" rx="1.5"/><rect x="202" y="708" width="4" height="6" rx="1.5"/><rect x="240" y="694" width="4" height="6" rx="1.5"/><rect x="319" y="651" width="4" height="6" rx="1.5"/><rect x="318" y="707" width="4" height="6" rx="1.5"/><rect x="325" y="651" width="4" height="6" rx="1.5"/><rect x="313" y="667" width="4" height="6" rx="1.5"/><rect x="347" y="687" width="4" height="6" rx="1.5"/><rect x="392" y="710" width="4" height="6" rx="1.5"/><rect x="390" y="750" width="4" height="6" rx="1.5"/><rect x="413" y="750" width="4" height="6" rx="1.5"/><rect x="441" y="677" width="4" height="6" rx="1.5"/><rect x="447" y="653" width="4" height="6" rx="1.5"/><rect x="517" y="667" width="4" height="6" rx="1.5"/><rect x="486" y="693" width="4" height="6" rx="1.5"/><rect x="566" y="750" width="4" height="6" rx="1.5"/><rect x="631" y="750" width="4" height="6" rx="1.5"/><rect x="690" y="731" width="4" height="6" rx="1.5"/><rect x="684" y="719" width="4" height="6" rx="1.5"/><rect x="722" y="689" width="4" height="6" rx="1.5"/><rect x="765" y="720" width="4" height="6" rx="1.5"/><rect x="772" y="739" width="4" height="6" rx="1.5"/><rect x="836" y="674" width="4" height="6" rx="1.5"/><rect x="890" y="706" width="4" height="6" rx="1.5"/><rect x="899" y="714" width="4" height="6" rx="1.5"/><rect x="899" y="746" width="4" height="6" rx="1.5"/><rect x="998" y="718" width="4" height="6" rx="1.5"/><rect x="978" y="660" width="4" height="6" rx="1.5"/><rect x="977" y="721" width="4" height="6" rx="1.5"/><rect x="1179" y="684" width="4" height="6" rx="1.5"/><rect x="1211" y="749" width="4" height="6" rx="1.5"/><rect x="1254" y="703" width="4" height="6" rx="1.5"/><rect x="1265" y="747" width="4" height="6" rx="1.5"/><rect x="1286" y="751" width="4" height="6" rx="1.5"/><rect x="1310" y="723" width="4" height="6" rx="1.5"/><rect x="1358" y="676" width="4" height="6" rx="1.5"/><rect x="1365" y="653" width="4" height="6" rx="1.5"/><rect x="1396" y="709" width="4" height="6" rx="1.5"/><rect x="1430" y="716" width="4" height="6" rx="1.5"/><rect x="1401" y="726" width="4" height="6" rx="1.5"/><rect x="1471" y="712" width="4" height="6" rx="1.5"/><rect x="1532" y="670" width="4" height="6" rx="1.5"/><rect x="1559" y="740" width="4" height="6" rx="1.5"/><rect x="1605" y="740" width="4" height="6" rx="1.5"/></g><rect x="0" y="745" width="1600" height="155" fill="url(#sea)"/><rect x="0" y="738" width="1600" height="14" fill="#5f509c"/><rect x="264" y="853" width="97" height="3" rx="1.5" fill="#fff" opacity="0.19"/><rect x="346" y="865" width="113" height="3" rx="1.5" fill="#fff" opacity="0.19"/><rect x="808" y="798" width="40" height="3" rx="1.5" fill="#fff" opacity="0.17"/><rect x="937" y="778" width="111" height="3" rx="1.5" fill="#fff" opacity="0.14"/><rect x="372" y="775" width="130" height="3" rx="1.5" fill="#fff" opacity="0.23"/><rect x="1400" y="844" width="43" height="3" rx="1.5" fill="#fff" opacity="0.16"/><rect x="796" y="784" width="126" height="3" rx="1.5" fill="#fff" opacity="0.17"/><rect x="248" y="868" width="51" height="3" rx="1.5" fill="#fff" opacity="0.27"/><rect x="725" y="836" width="71" height="3" rx="1.5" fill="#fff" opacity="0.19"/><rect x="299" y="774" width="118" height="3" rx="1.5" fill="#fff" opacity="0.14"/><rect x="1248" y="795" width="127" height="3" rx="1.5" fill="#fff" opacity="0.26"/><rect x="1208" y="862" width="92" height="3" rx="1.5" fill="#fff" opacity="0.23"/><rect x="196" y="827" width="114" height="3" rx="1.5" fill="#fff" opacity="0.14"/><rect x="1477" y="877" width="77" height="3" rx="1.5" fill="#fff" opacity="0.17"/><rect x="722" y="816" width="130" height="3" rx="1.5" fill="#fff" opacity="0.17"/><rect x="43" y="781" width="105" height="3" rx="1.5" fill="#fff" opacity="0.28"/><rect x="794" y="829" width="90" height="3" rx="1.5" fill="#fff" opacity="0.23"/><rect x="355" y="843" width="90" height="3" rx="1.5" fill="#fff" opacity="0.21"/><rect x="289" y="790" width="71" height="3" rx="1.5" fill="#fff" opacity="0.27"/><rect x="555" y="842" width="68" height="3" rx="1.5" fill="#fff" opacity="0.12"/><rect x="105" y="868" width="110" height="3" rx="1.5" fill="#fff" opacity="0.17"/><rect x="1093" y="851" width="121" height="3" rx="1.5" fill="#fff" opacity="0.27"/><rect x="651" y="889" width="127" height="3" rx="1.5" fill="#fff" opacity="0.21"/><rect x="1413" y="829" width="74" height="3" rx="1.5" fill="#fff" opacity="0.14"/><rect x="1402" y="789" width="46" height="3" rx="1.5" fill="#fff" opacity="0.24"/><rect x="1238" y="828" width="115" height="3" rx="1.5" fill="#fff" opacity="0.11"/><rect x="413" y="805" width="78" height="3" rx="1.5" fill="#fff" opacity="0.13"/><rect x="111" y="811" width="121" height="3" rx="1.5" fill="#fff" opacity="0.28"/><rect x="1193" y="827" width="63" height="3" rx="1.5" fill="#fff" opacity="0.27"/><rect x="841" y="857" width="43" height="3" rx="1.5" fill="#fff" opacity="0.14"/><rect x="1341" y="865" width="119" height="3" rx="1.5" fill="#fff" opacity="0.21"/><rect x="682" y="840" width="116" height="3" rx="1.5" fill="#fff" opacity="0.16"/><rect x="855" y="803" width="109" height="3" rx="1.5" fill="#fff" opacity="0.10"/><rect x="1096" y="884" width="42" height="3" rx="1.5" fill="#fff" opacity="0.21"/><rect x="1030" y="845" width="3" height="16" rx="1.5" fill="#ffe08e" opacity="0.34"/><rect x="649" y="856" width="3" height="21" rx="1.5" fill="#ffe08e" opacity="0.30"/><rect x="152" y="771" width="3" height="8" rx="1.5" fill="#ffe08e" opacity="0.41"/><rect x="225" y="847" width="3" height="17" rx="1.5" fill="#ffe08e" opacity="0.29"/><rect x="862" y="794" width="3" height="15" rx="1.5" fill="#ffe08e" opacity="0.33"/><rect x="266" y="780" width="3" height="13" rx="1.5" fill="#ffe08e" opacity="0.50"/><rect x="880" y="767" width="3" height="18" rx="1.5" fill="#ffe08e" opacity="0.56"/><rect x="1239" y="839" width="3" height="8" rx="1.5" fill="#ffe08e" opacity="0.41"/><rect x="102" y="837" width="3" height="10" rx="1.5" fill="#ffe08e" opacity="0.50"/><rect x="405" y="830" width="3" height="12" rx="1.5" fill="#ffe08e" opacity="0.26"/><rect x="622" y="792" width="3" height="21" rx="1.5" fill="#ffe08e" opacity="0.35"/><rect x="805" y="816" width="3" height="21" rx="1.5" fill="#ffe08e" opacity="0.28"/><rect x="962" y="812" width="3" height="18" rx="1.5" fill="#ffe08e" opacity="0.59"/><rect x="496" y="831" width="3" height="15" rx="1.5" fill="#ffe08e" opacity="0.45"/><rect x="102" y="842" width="3" height="22" rx="1.5" fill="#ffe08e" opacity="0.37"/><rect x="509" y="859" width="3" height="10" rx="1.5" fill="#ffe08e" opacity="0.28"/><rect x="117" y="842" width="3" height="19" rx="1.5" fill="#ffe08e" opacity="0.41"/><rect x="994" y="764" width="3" height="17" rx="1.5" fill="#ffe08e" opacity="0.40"/><rect x="828" y="800" width="3" height="14" rx="1.5" fill="#ffe08e" opacity="0.33"/><rect x="78" y="805" width="3" height="11" rx="1.5" fill="#ffe08e" opacity="0.50"/><rect x="1308" y="833" width="3" height="14" rx="1.5" fill="#ffe08e" opacity="0.33"/><rect x="617" y="810" width="3" height="17" rx="1.5" fill="#ffe08e" opacity="0.59"/><rect x="137" y="809" width="3" height="15" rx="1.5" fill="#ffe08e" opacity="0.50"/><rect x="1425" y="838" width="3" height="17" rx="1.5" fill="#ffe08e" opacity="0.52"/><rect x="1069" y="846" width="3" height="18" rx="1.5" fill="#ffe08e" opacity="0.49"/><rect x="392" y="852" width="3" height="13" rx="1.5" fill="#ffe08e" opacity="0.47"/><rect x="1320" y="856" width="3" height="22" rx="1.5" fill="#ffe08e" opacity="0.25"/><rect x="500" y="793" width="3" height="13" rx="1.5" fill="#ffe08e" opacity="0.30"/><rect x="885" y="770" width="3" height="12" rx="1.5" fill="#ffe08e" opacity="0.58"/><rect x="1188" y="807" width="3" height="10" rx="1.5" fill="#ffe08e" opacity="0.58"/><rect x="1000" y="150" width="0" height="0"/><g opacity=".4" fill="#fff6e6"><rect x="1210" y="770" width="40" height="3" rx="1.5"/><rect x="1196" y="790" width="70" height="3" rx="1.5"/><rect x="1186" y="812" width="90" height="3" rx="1.5"/><rect x="1200" y="836" width="60" height="3" rx="1.5"/></g><g transform="translate(250 800) scale(1.1)"><path d="M-34 0 H34 L24 16 H-24Z" fill="#5b4d96"/><rect x="-2" y="-62" width="4" height="62" fill="#5b4d96"/><polygon points="4,-60 4,-8 38,-8" fill="#fff1f6"/><polygon points="-4,-52 -4,-8 -28,-8" fill="#fff1f6" opacity=".8"/></g><g transform="translate(780 835) scale(0.9)"><path d="M-34 0 H34 L24 16 H-24Z" fill="#6a5aab"/><rect x="-2" y="-62" width="4" height="62" fill="#6a5aab"/><polygon points="4,-60 4,-8 38,-8" fill="#ffe9d6"/><polygon points="-4,-52 -4,-8 -28,-8" fill="#ffe9d6" opacity=".8"/></g><g transform="translate(1330 806) scale(1.0)"><path d="M-34 0 H34 L24 16 H-24Z" fill="#5b4d96"/><rect x="-2" y="-62" width="4" height="62" fill="#5b4d96"/><polygon points="4,-60 4,-8 38,-8" fill="#fff1f6"/><polygon points="-4,-52 -4,-8 -28,-8" fill="#fff1f6" opacity=".8"/></g><g transform="translate(1010 775) scale(0.6)"><path d="M-34 0 H34 L24 16 H-24Z" fill="#6a5aab"/><rect x="-2" y="-62" width="4" height="62" fill="#6a5aab"/><polygon points="4,-60 4,-8 38,-8" fill="#f9e7ff"/><polygon points="-4,-52 -4,-8 -28,-8" fill="#f9e7ff" opacity=".8"/></g></svg></div>
+<header class="top">
+  <div class="brand"><h1>Waterdeep: Dragon Heist</h1><span id="errs" style="color:#b3262e;font-weight:700"></span></div>
+  <div class="tools">
+    <span id="status" class="status" role="status">Laster…</span>
+    <button type="button" class="btn small ghost" id="bk-export">Sikkerhetskopi</button>
+    <span id="bk-import-slot"></span>
+    <input type="file" id="bk-file" accept="application/json,.json" hidden>
+  </div>
+</header>
+<main>
+  <section class="widget g-notes" id="w-notes"><h2>Huskelapper</h2><div class="wbody" id="notes"></div></section>
+  <section class="widget g-init" id="w-init"><h2>Initiativ</h2><div class="wbody" id="combat"></div></section>
+  <section class="widget g-bank" id="w-bank"><h2>Katalog</h2><div class="wbody" id="catalog"></div></section>
+  <div class="col g-left2">
+    <section class="widget" id="w-npc"><h2>Karakterer</h2><div class="wbody" id="npc"></div></section>
+    <section class="widget" id="w-conv"><h2>Valuta</h2><div class="wbody" id="conv"></div></section>
+  </div>
+  <section class="widget g-recap" id="w-recap"><h2>Session recap</h2><div class="wbody" id="recap"></div></section>
+  <section class="widget g-rules" id="w-rules"><h2>Regler</h2><div class="wbody" id="rules"></div></section>
+</main>
+
+
+<div id="sheets"></div>
+
+<script>
+window.addEventListener('error', e => { const el = document.getElementById('errs'); if (el) el.textContent = ' Feil: ' + (e.message || '?') + ' (linje ' + (e.lineno || '?') + ')'; });
+window.addEventListener('unhandledrejection', e => { const el = document.getElementById('errs'); if (el) el.textContent = ' Feil: ' + ((e.reason && e.reason.message) || e.reason || '?'); });
+const DBG = []; const t0 = Date.now();
+const dbg = m => { DBG.push(((Date.now() - t0) / 1000).toFixed(1) + 's ' + m); if (DBG.length > 60) DBG.shift(); const el = document.getElementById('dbgout'); if (el && el.offsetParent !== null) el.textContent = DBG.join('\n'); };
+/*LOGIC-START*/
+const VAL = { cp: 1, sp: 10, gp: 100, pp: 1000 };
+const ORDER = ['cp', 'sp', 'gp', 'pp'];
+const ALIAS = { cp: 'cp', kobber: 'cp', sp: 'sp', 'sølv': 'sp', solv: 'sp', gp: 'gp', gull: 'gp', pp: 'pp', platina: 'pp' };
+
+function parseMoney(text, defaultUnit) {
+  let src = String(text).toLowerCase().replace(/[−–—]/g, '-').replace(/\bog\b/g, '+');
+  if (!src.trim()) return { error: 'Skriv et beløp, for eksempel 18 gp.' };
+  const re = /([+\-])?\s*(\d+(?:[.,]\d+)?)\s*([a-zæøå]*)/g;
+  const leftover = src.replace(re, '').replace(/[\s,;+]/g, '');
+  const matches = [...src.matchAll(re)];
+  if (!matches.length) return { error: 'Skriv et beløp, for eksempel 18 gp.' };
+  if (leftover) return { error: 'Forstod ikke «' + leftover + '».' };
+  const units = { cp: 0, sp: 0, gp: 0, pp: 0 };
+  let assumed = false;
+  for (const m of matches) {
+    const sign = m[1] === '-' ? -1 : 1;
+    const num = parseFloat(m[2].replace(',', '.'));
+    let unit;
+    if (m[3]) {
+      unit = ALIAS[m[3]];
+      if (!unit) return { error: 'Ukjent enhet «' + m[3] + '». Bruk cp, sp, gp eller pp.' };
+    } else { unit = defaultUnit || 'gp'; assumed = true; }
+    if (Number.isInteger(num)) units[unit] += sign * num;
+    else units.cp += sign * Math.round(num * VAL[unit]);
+  }
+  const cp = ORDER.reduce((s, d) => s + units[d] * VAL[d], 0);
+  return { units, cp, assumed };
+}
+function totalCp(c) { return ORDER.reduce((s, d) => s + (c[d] || 0) * VAL[d], 0); }
+function split(cp) {
+  const out = { pp: 0, gp: 0, sp: 0, cp: 0 };
+  let r = Math.abs(cp);
+  for (const d of ['pp', 'gp', 'sp', 'cp']) { out[d] = Math.floor(r / VAL[d]); r -= out[d] * VAL[d]; }
+  return out;
+}
+function spend(coins, need) {
+  const c = {};
+  ORDER.forEach(d => c[d] = coins[d] || 0);
+  const needTotal = totalCp(need);
+  if (needTotal > totalCp(c)) return null;
+  let changed = false;
+  for (const d of [...ORDER].reverse()) {
+    const n = need[d] || 0;
+    if (n <= 0) continue;
+    for (const h of ORDER) {
+      if (c[d] >= n) break;
+      if (VAL[h] <= VAL[d] || c[h] <= 0) continue;
+      const r = VAL[h] / VAL[d];
+      const k = Math.min(c[h], Math.ceil((n - c[d]) / r));
+      c[h] -= k; c[d] += k * r; changed = true;
+    }
+    if (c[d] < n) return { coins: split(totalCp(coins) - needTotal), changed: true };
+    c[d] -= n;
+  }
+  return { coins: c, changed };
+}
+function applyUnits(coins, u) {
+  const c = {}, need = {};
+  let any = false;
+  ORDER.forEach(d => { c[d] = coins[d] || 0; need[d] = 0; });
+  for (const d of ORDER) {
+    const v = u[d] || 0;
+    if (v > 0) c[d] += v;
+    else if (v < 0) { need[d] = -v; any = true; }
+  }
+  if (!any) return { coins: c, changed: false };
+  return spend(c, need);
+}
+/*LOGIC-END*/
+
+/* ---------- hjelpere ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 9);
+const nf = new Intl.NumberFormat('nb-NO', { maximumFractionDigits: 3 });
+const rnd = n => Math.floor(Math.random() * n) + 1;
+const toInt = (v, def = null) => (v === '' || v == null || !Number.isFinite(+v)) ? def : Math.trunc(+v);
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  if (props) for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (v === true) el.setAttribute(k, '');
+    else if (v !== false && v != null) el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+function twoStep(label, confirmLabel, fn, cls) {
+  const b = h('button', { class: 'btn danger ' + (cls || ''), type: 'button' }, label);
+  let armed = false, t;
+  b.addEventListener('click', () => {
+    if (!armed) {
+      armed = true; b.textContent = confirmLabel; b.classList.add('armed');
+      t = setTimeout(() => { armed = false; b.textContent = label; b.classList.remove('armed'); }, 3000);
+    } else { clearTimeout(t); fn(); }
+  });
+  return b;
+}
+function keepFocus(fn) {
+  const ae = document.activeElement;
+  const key = ae && ae.dataset && ae.dataset.key;
+  fn();
+  if (key) { const el = document.querySelector('[data-key="' + key + '"]'); if (el) el.focus(); }
+}
+const timeStr = t => new Date(t).toLocaleString('nb-NO', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+/* ---------- katalog ---------- */
+const CAT_ORDER = ['Våpen', 'Rustning', 'Utstyr', 'Verktøy', 'Potions', 'Næring', 'Overnatting', 'Transport', 'Tjenester'];
+const G = 100, S_ = 10;
+const DEFAULT_CATALOG = [
+  // Simple weapons
+  ['Våpen', 'Club', 1 * S_, '1d4 bludgeoning'], ['Våpen', 'Dagger', 2 * G, '1d4 piercing'], ['Våpen', 'Greatclub', 2 * S_, '1d8 bludgeoning'],
+  ['Våpen', 'Handaxe', 5 * G, '1d6 slashing'], ['Våpen', 'Javelin', 5 * S_, '1d6 piercing'], ['Våpen', 'Light hammer', 2 * G, '1d4 bludgeoning'],
+  ['Våpen', 'Mace', 5 * G, '1d6 bludgeoning'], ['Våpen', 'Quarterstaff', 2 * S_, '1d6 bludgeoning'], ['Våpen', 'Sickle', 1 * G, '1d4 slashing'],
+  ['Våpen', 'Spear', 1 * G, '1d6 piercing'], ['Våpen', 'Dart', 5, '1d4 piercing'], ['Våpen', 'Light crossbow', 25 * G, '1d8 piercing, range 80/320'],
+  ['Våpen', 'Shortbow', 25 * G, '1d6 piercing, range 80/320'], ['Våpen', 'Sling', 1 * S_, '1d4 bludgeoning'],
+  // Martial weapons
+  ['Våpen', 'Battleaxe', 10 * G, '1d8 slashing'], ['Våpen', 'Flail', 10 * G, '1d8 bludgeoning'], ['Våpen', 'Glaive', 20 * G, '1d10 slashing'],
+  ['Våpen', 'Greataxe', 30 * G, '1d12 slashing'], ['Våpen', 'Greatsword', 50 * G, '2d6 slashing'], ['Våpen', 'Halberd', 20 * G, '1d10 slashing'],
+  ['Våpen', 'Lance', 10 * G, '1d10 piercing'], ['Våpen', 'Longsword', 15 * G, '1d8 slashing'], ['Våpen', 'Maul', 10 * G, '2d6 bludgeoning'],
+  ['Våpen', 'Morningstar', 15 * G, '1d8 piercing'], ['Våpen', 'Pike', 5 * G, '1d10 piercing'], ['Våpen', 'Rapier', 25 * G, '1d8 piercing'],
+  ['Våpen', 'Scimitar', 25 * G, '1d6 slashing'], ['Våpen', 'Shortsword', 10 * G, '1d6 piercing'], ['Våpen', 'Trident', 5 * G, '1d8 piercing'],
+  ['Våpen', 'Warhammer', 15 * G, '1d8 bludgeoning'], ['Våpen', 'War pick', 5 * G, '1d8 piercing'], ['Våpen', 'Whip', 2 * G, '1d4 slashing'],
+  ['Våpen', 'Blowgun', 10 * G, '1 piercing, range 25/100'], ['Våpen', 'Hand crossbow', 75 * G, '1d6 piercing, range 30/120'],
+  ['Våpen', 'Heavy crossbow', 50 * G, '1d10 piercing, range 100/400'], ['Våpen', 'Longbow', 50 * G, '1d8 piercing, range 150/600'],
+  ['Våpen', 'Arrows (20)', 1 * G, 'Ammunition'], ['Våpen', 'Bolts (20)', 1 * G, 'Ammunition'], ['Våpen', 'Sling bullets (20)', 4, 'Ammunition'],
+  // Armor
+  ['Rustning', 'Padded armor', 5 * G, 'Light, AC 11 + Dex, disadv. Stealth'], ['Rustning', 'Leather armor', 10 * G, 'Light, AC 11 + Dex'],
+  ['Rustning', 'Studded leather armor', 45 * G, 'Light, AC 12 + Dex'], ['Rustning', 'Hide armor', 10 * G, 'Medium, AC 12 + Dex (maks 2)'],
+  ['Rustning', 'Chain shirt', 50 * G, 'Medium, AC 13 + Dex (maks 2)'], ['Rustning', 'Scale mail', 50 * G, 'Medium, AC 14 + Dex (maks 2), disadv. Stealth'],
+  ['Rustning', 'Breastplate', 400 * G, 'Medium, AC 14 + Dex (maks 2)'], ['Rustning', 'Half plate armor', 750 * G, 'Medium, AC 15 + Dex (maks 2), disadv. Stealth'],
+  ['Rustning', 'Ring mail', 30 * G, 'Heavy, AC 14, disadv. Stealth'], ['Rustning', 'Chain mail', 75 * G, 'Heavy, AC 16, Str 13, disadv. Stealth'],
+  ['Rustning', 'Splint armor', 200 * G, 'Heavy, AC 17, Str 15, disadv. Stealth'], ['Rustning', 'Plate armor', 1500 * G, 'Heavy, AC 18, Str 15, disadv. Stealth'],
+  ['Rustning', 'Shield', 10 * G, '+2 AC'],
+  // Adventuring gear
+  ['Utstyr', 'Backpack', 2 * G, 'Rommer 30 kg'], ['Utstyr', 'Bedroll', 1 * G, ''], ['Utstyr', 'Blanket', 5 * S_, ''], ['Utstyr', 'Rope, hempen (50 ft)', 1 * G, ''],
+  ['Utstyr', 'Torch', 1, 'Lys 20 ft, 1 time'], ['Utstyr', 'Candle', 1, 'Lys 5 ft, 1 time'], ['Utstyr', 'Lamp', 5 * S_, 'Lys 15 ft, 6 timer per flask oil'],
+  ['Utstyr', 'Lantern, hooded', 5 * G, ''], ['Utstyr', 'Lantern, bullseye', 10 * G, ''], ['Utstyr', 'Oil (flask)', 1 * S_, ''],
+  ['Utstyr', 'Tinderbox', 5 * S_, ''], ['Utstyr', 'Waterskin', 2 * S_, ''], ['Utstyr', 'Crowbar', 2 * G, ''], ['Utstyr', 'Shovel', 2 * G, ''],
+  ['Utstyr', 'Grappling hook', 2 * G, ''], ['Utstyr', 'Climber’s kit', 25 * G, ''], ['Utstyr', 'Healer’s kit', 5 * G, '10 bruk'],
+  ['Utstyr', 'Component pouch', 25 * G, 'Spell focus'], ['Utstyr', 'Holy symbol', 5 * G, 'Spell focus'], ['Utstyr', 'Arcane focus (crystal)', 10 * G, 'Spell focus'],
+  ['Utstyr', 'Spellbook', 50 * G, ''], ['Utstyr', 'Book', 25 * G, ''], ['Utstyr', 'Ink (1 oz.)', 10 * G, ''], ['Utstyr', 'Ink pen', 2, ''],
+  ['Utstyr', 'Paper (1 ark)', 2 * S_, ''], ['Utstyr', 'Parchment (1 ark)', 1 * S_, ''], ['Utstyr', 'Case, map or scroll', 1 * G, ''],
+  ['Utstyr', 'Chest', 5 * G, ''], ['Utstyr', 'Chain (10 ft)', 5 * G, ''], ['Utstyr', 'Lock', 10 * G, ''], ['Utstyr', 'Manacles', 2 * G, ''],
+  ['Utstyr', 'Net', 1 * G, ''], ['Utstyr', 'Caltrops (20)', 1 * G, ''], ['Utstyr', 'Ball bearings (1 000)', 1 * G, ''], ['Utstyr', 'Hunting trap', 5 * G, ''],
+  ['Utstyr', 'Tent, two-person', 2 * G, ''], ['Utstyr', 'Mirror, steel', 5 * G, ''], ['Utstyr', 'Magnifying glass', 100 * G, ''], ['Utstyr', 'Spyglass', 1000 * G, ''],
+  ['Utstyr', 'Whistle, signal', 5, ''], ['Utstyr', 'Bell', 1 * G, ''], ['Utstyr', 'Pouch', 5 * S_, ''], ['Utstyr', 'Sack', 1, ''], ['Utstyr', 'Bucket', 5, ''],
+  ['Utstyr', 'Flask', 2, ''], ['Utstyr', 'Vial', 1 * G, ''], ['Utstyr', 'Fishing tackle', 1 * G, ''], ['Utstyr', 'Perfume (vial)', 5 * G, ''],
+  ['Utstyr', 'Acid (vial)', 25 * G, '2d6 acid'], ['Utstyr', 'Alchemist’s fire (flask)', 50 * G, '1d4 fire per runde'], ['Utstyr', 'Antitoxin (vial)', 50 * G, ''],
+  ['Utstyr', 'Holy water (flask)', 25 * G, ''], ['Utstyr', 'Poison, basic (vial)', 100 * G, ''],
+  ['Utstyr', 'Clothes, common', 5 * S_, ''], ['Utstyr', 'Clothes, traveler’s', 2 * G, ''], ['Utstyr', 'Clothes, costume', 5 * G, ''],
+  ['Utstyr', 'Clothes, fine', 15 * G, ''], ['Utstyr', 'Robe', 1 * G, ''],
+  ['Utstyr', 'Spell scroll (cantrip)', 30 * G, ''], ['Utstyr', 'Spell scroll (level 1)', 50 * G, ''],
+  // Tools
+  ['Verktøy', 'Thieves’ tools', 25 * G, ''], ['Verktøy', 'Disguise kit', 25 * G, ''], ['Verktøy', 'Forgery kit', 15 * G, ''], ['Verktøy', 'Herbalism kit', 5 * G, ''],
+  ['Verktøy', 'Poisoner’s kit', 50 * G, ''], ['Verktøy', 'Navigator’s tools', 25 * G, ''], ['Verktøy', 'Alchemist’s supplies', 50 * G, ''],
+  ['Verktøy', 'Brewer’s supplies', 20 * G, ''], ['Verktøy', 'Calligrapher’s supplies', 10 * G, ''], ['Verktøy', 'Carpenter’s tools', 8 * G, ''],
+  ['Verktøy', 'Cartographer’s tools', 15 * G, ''], ['Verktøy', 'Cobbler’s tools', 5 * G, ''], ['Verktøy', 'Cook’s utensils', 1 * G, ''],
+  ['Verktøy', 'Glassblower’s tools', 30 * G, ''], ['Verktøy', 'Jeweler’s tools', 25 * G, ''], ['Verktøy', 'Leatherworker’s tools', 5 * G, ''],
+  ['Verktøy', 'Mason’s tools', 10 * G, ''], ['Verktøy', 'Painter’s supplies', 10 * G, ''], ['Verktøy', 'Potter’s tools', 10 * G, ''],
+  ['Verktøy', 'Smith’s tools', 20 * G, ''], ['Verktøy', 'Tinker’s tools', 50 * G, ''], ['Verktøy', 'Weaver’s tools', 1 * G, ''], ['Verktøy', 'Woodcarver’s tools', 1 * G, ''],
+  ['Verktøy', 'Dice set', 1 * S_, 'Gaming set'], ['Verktøy', 'Playing cards', 5 * S_, 'Gaming set'], ['Verktøy', 'Three-Dragon Ante set', 1 * G, 'Gaming set'],
+  ['Verktøy', 'Dragonchess set', 1 * G, 'Gaming set'],
+  ['Verktøy', 'Lute', 35 * G, 'Instrument'], ['Verktøy', 'Lyre', 30 * G, 'Instrument'], ['Verktøy', 'Flute', 2 * G, 'Instrument'], ['Verktøy', 'Drum', 6 * G, 'Instrument'],
+  ['Verktøy', 'Horn', 3 * G, 'Instrument'], ['Verktøy', 'Pan flute', 12 * G, 'Instrument'], ['Verktøy', 'Shawm', 2 * G, 'Instrument'],
+  ['Verktøy', 'Viol', 30 * G, 'Instrument'], ['Verktøy', 'Bagpipes', 30 * G, 'Instrument'], ['Verktøy', 'Dulcimer', 25 * G, 'Instrument'],
+  // Potions
+  ['Potions', 'Potion of Healing', 50 * G, 'Gjenoppretter 2d4 + 2 HP'],
+  // Food and drink
+  ['Næring', 'Rations (1 dag)', 5 * S_, ''], ['Næring', 'Ale (mugg)', 4, ''], ['Næring', 'Ale (gallon)', 2 * S_, ''],
+  ['Næring', 'Wine, common (mugg)', 2 * S_, ''], ['Næring', 'Wine, fine (flaske)', 10 * G, ''], ['Næring', 'Bread (brød)', 2, ''],
+  ['Næring', 'Cheese (stykke)', 1 * S_, ''], ['Næring', 'Meat (stykke)', 3 * S_, ''],
+  ['Næring', 'Måltid, squalid', 3, ''], ['Næring', 'Måltid, poor', 6, ''], ['Næring', 'Måltid, modest', 3 * S_, ''],
+  ['Næring', 'Måltid, comfortable', 5 * S_, ''], ['Næring', 'Måltid, wealthy', 8 * S_, ''], ['Næring', 'Måltid, aristocratic', 2 * G, ''],
+  // Lodging
+  ['Overnatting', 'Rom, squalid (natt)', 5, ''], ['Overnatting', 'Rom, poor (natt)', 1 * S_, ''], ['Overnatting', 'Rom, modest (natt)', 5 * S_, ''],
+  ['Overnatting', 'Rom, comfortable (natt)', 8 * S_, ''], ['Overnatting', 'Rom, wealthy (natt)', 2 * G, ''], ['Overnatting', 'Rom, aristocratic (natt)', 4 * G, ''],
+  ['Overnatting', 'Levekostnad, modest (dag)', 1 * G, 'Lifestyle expense'], ['Overnatting', 'Levekostnad, comfortable (dag)', 2 * G, 'Lifestyle expense'],
+  ['Overnatting', 'Levekostnad, wealthy (dag)', 4 * G, 'Lifestyle expense'], ['Overnatting', 'Levekostnad, aristocratic (dag)', 10 * G, 'Minst, lifestyle expense'],
+  // Transport
+  ['Transport', 'Horse, riding', 75 * G, ''], ['Transport', 'Horse, draft', 50 * G, ''], ['Transport', 'Warhorse', 400 * G, ''], ['Transport', 'Pony', 30 * G, ''],
+  ['Transport', 'Mule / Donkey', 8 * G, ''], ['Transport', 'Camel', 50 * G, ''], ['Transport', 'Mastiff', 25 * G, ''],
+  ['Transport', 'Saddle, riding', 10 * G, ''], ['Transport', 'Saddle, pack', 5 * G, ''], ['Transport', 'Saddle, military', 20 * G, ''],
+  ['Transport', 'Bit and bridle', 2 * G, ''], ['Transport', 'Stabling (dag)', 5 * S_, ''], ['Transport', 'Feed (dag)', 5, ''],
+  ['Transport', 'Cart', 15 * G, ''], ['Transport', 'Wagon', 35 * G, ''], ['Transport', 'Carriage', 100 * G, ''], ['Transport', 'Sled', 20 * G, ''],
+  ['Transport', 'Rowboat', 50 * G, ''], ['Transport', 'Keelboat', 3000 * G, ''], ['Transport', 'Sailing ship', 10000 * G, ''],
+  ['Transport', 'Passasje, skip (per mil)', 1 * S_, ''], ['Transport', 'Drosje i byen', 1, ''], ['Transport', 'Drosje mellom byer (per mil)', 3, ''],
+  // Services
+  ['Tjenester', 'Hireling, skilled (dag)', 2 * G, ''], ['Tjenester', 'Hireling, untrained (dag)', 2 * S_, ''], ['Tjenester', 'Messenger (per mil)', 2, ''],
+  ['Tjenester', 'Toll, vei eller port', 1, '']
+].map((r, i) => ({ id: 'd' + i, cat: r[0], name: r[1], cp: r[2], note: r[3] }));
+const normCatalog = d => {
+  const c = { rev: d && d.rev, items: Array.isArray(d && d.items) ? d.items.filter(x => x && x.id && x.name && Number.isFinite(x.cp)) : null };
+  if (!c.items) c.items = DEFAULT_CATALOG.map(x => Object.assign({}, x));
+  c.items.forEach(x => { if (x.cat === 'Mat og drikke') x.cat = 'Næring'; });
+  return c;
+};
+const fmtPrice = cp => {
+  if (cp % G === 0) return nf.format(cp / G) + ' gp';
+  if (cp > G && cp % S_ === 0) return nf.format(cp / G) + ' gp';
+  if (cp % S_ === 0) return nf.format(cp / S_) + ' sp';
+  return nf.format(cp) + ' cp';
+};
+const RECAP = `Det var en gang tre modige krigere som på hver sin måte hadde kommet til en magisk by kalt Waterdeep. Andoran kom med salt i klærne, Echo med stjålne klær, og Sariel med en lyre (og en litt for gjentakende hodepine.)
+
+En lilla fjærhatt ved navn Volo kalte dem alle til The Yawning Portal. Der slo de seg virkelig løs, helt til en slåsskamp mellom Xanathar og Zhentarim brøt ut midt i lokalet. De hjalp til og med å dytte et troll tilbake i hullet det hadde kravlet opp fra. Da støvet la seg, fikk de møte den desperate Volothamp Geddarm: hans kjære venn Floon Blagmar var forsvunnet, og den som fant ham, kunne vente gull, heder og evig ære.
+
+Sporet førte dem gjennom tåke og blod i Dock Ward, til Toms lille lilla butikk, en falleferdig pub og et forlatt lager fullt av kenkuer. Under byen, i kloakkens mørke, møtte de en rotte i tutu som danset for dem, og som bestemte seg for å bli med på ferden.
+
+Slik gikk de, langs svarte vegger og mot lyden av fjerne vannrør, til de nå står utenfor Xanathars gjemmested. Lyset er svakt, døren står på gløtt, og et sted der inne venter Floon, om han ennå lever.`;
+/* ---------- tid og økt ---------- */
+const parseHM = t => {
+  const m = /^\s*(\d{1,2})\s*[:.]?\s*(\d{2})?\s*$/.exec(String(t == null ? '' : t));
+  if (!m) return null;
+  const hh = +m[1], mm = m[2] == null ? 0 : +m[2];
+  return hh > 23 || mm > 59 ? null : hh * 60 + mm;
+};
+const fmtHM = min => String(Math.floor(min / 60)).padStart(2, '0') + ':' + String(min % 60).padStart(2, '0');
+function sessionState(now, startMin, endMin) {
+  const dur = ((endMin - startMin + 1440) % 1440) || 1440;
+  const at = (d, min) => { const x = new Date(now); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() + d); x.setMinutes(min); return x.getTime(); };
+  for (const d of [-1, 0]) {
+    const s = at(d, startMin), e = s + dur * 60000;
+    if (now >= s && now < e) return { phase: 'active', left: e - now, pct: (now - s) / (e - s) };
+  }
+  const prevEnd = at(-1, startMin) + dur * 60000;
+  if (now >= prevEnd && now - prevEnd < 12 * 3600000) return { phase: 'over', left: 0, pct: 1 };
+  const s0 = at(0, startMin);
+  if (now < s0) return { phase: 'before', left: s0 - now, pct: 0 };
+  return { phase: 'over', left: 0, pct: 1 };
+}
+const fmtLeft = ms => {
+  const t = Math.max(0, Math.ceil(ms / 1000)), hh = Math.floor(t / 3600), mm = Math.floor((t % 3600) / 60), ss = t % 60;
+  return hh + ':' + String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+};
+
+/* ---------- ferdige NPC-er som legges til én gang ---------- */
+const SEED_NPCS = [
+  { id: 'npc-tough', md: `# Tough (Thug)
+*Medium or Small Humanoid, Neutral*
+**Armor Class** 12  
+**Hit Points** 32 (5d8 + 10)  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 15 (+2) | 12 (+1) | 14 (+2) | 10 (+0) | 10 (+0) | 11 (+0) |
+**Gear** Heavy Crossbow, Leather Armor, Mace  
+**Senses** passive Perception 10  
+**Languages** Common  
+**Challenge** 1/2 (100 XP)
+### Traits
+**Pack Tactics.** The tough has Advantage on attack rolls against a creature if at least one of the tough's allies is within 5 feet of the creature and the ally doesn't have the Incapacitated condition.
+### Actions
+**Mace.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) bludgeoning damage.
+**Heavy Crossbow.** *Ranged Attack Roll:* +3, range 100/400 ft. *Hit:* 6 (1d10 + 1) piercing damage.` },
+  { id: 'npc-troll', md: `# Troll
+*Large Giant, Chaotic Evil*
+**Armor Class** 15  
+**Initiative** +1 (11)  
+**Hit Points** 94 (9d10 + 45)  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 18 (+4) | 13 (+1) | 20 (+5) | 7 (-2) | 9 (-1) | 7 (-2) |
+**Skills** Perception +5  
+**Senses** Darkvision 60 ft., passive Perception 15  
+**Languages** Giant  
+**Challenge** 5 (1 800 XP)
+### Traits
+**Loathsome Limbs (4/Day).** Hvis trollet avslutter en tur Bloodied etter å ha tatt 15 eller mer slashing damage den turen, løsner en lem og blir en Troll Limb som handler rett etter trollets tur. Hver manglende lem gir 1 Exhaustion. Lemmene gror ut igjen når trollet neste gang får Hit Points.
+**Regeneration.** Trollet får 15 Hit Points ved starten av hver av sine turer. Tar det Acid eller Fire damage, virker ikke dette ved starten av neste tur. Trollet dør bare hvis det starter en tur med 0 Hit Points og ikke regenererer.
+### Actions
+**Multiattack.** Trollet gjør tre Rend-angrep.
+**Rend.** *Melee Attack Roll:* +7, reach 10 ft. *Hit:* 11 (2d6 + 4) slashing damage.
+### Bonus Actions
+**Charge.** Trollet beveger seg opptil halvparten av sin Speed rett mot en fiende det kan se.` },
+  { id: 'npc-crocodile', md: `# Crocodile
+*Large Beast, Unaligned*
+**Armor Class** 12  
+**Initiative** +0 (10)  
+**Hit Points** 13 (2d10 + 2)  
+**Speed** 20 ft., Swim 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 15 (+2) | 10 (+0) | 13 (+1) | 2 (-4) | 10 (+0) | 5 (-3) |
+**Skills** Stealth +2  
+**Senses** passive Perception 10  
+**Languages** Ingen  
+**Challenge** 1/2 (100 XP)
+### Traits
+**Hold Breath.** Kan holde pusten i opptil 1 time.
+### Actions
+**Bite.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 6 (1d8 + 2) piercing damage. Er målet Medium eller mindre, blir det Grappled (escape DC 12) og er Restrained mens det er Grappled.` },
+  { id: 'npc-goblin', md: `# Goblin Warrior (Goblin)
+*Small Fey (Goblinoid), Chaotic Neutral*
+**Armor Class** 15  
+**Initiative** +2 (12)  
+**Hit Points** 10 (3d6)  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 8 (-1) | 15 (+2) | 10 (+0) | 10 (+0) | 8 (-1) | 8 (-1) |
+**Skills** Stealth +6  
+**Gear** Leather Armor, Scimitar, Shield, Shortbow  
+**Senses** Darkvision 60 ft., passive Perception 9  
+**Languages** Common, Goblin  
+**Challenge** 1/4 (50 XP)
+### Actions
+**Scimitar.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 5 (1d6 + 2) slashing damage, pluss 2 (1d4) hvis angrepet hadde Advantage.
+**Shortbow.** *Ranged Attack Roll:* +4, range 80/320 ft. *Hit:* 5 (1d6 + 2) piercing damage, pluss 2 (1d4) hvis angrepet hadde Advantage.
+### Bonus Actions
+**Nimble Escape.** Kan ta Disengage eller Hide.` },
+  { id: 'npc-zemk', md: `# Duergar Zemk (Dverg)
+*Medium Humanoid (Dwarf), Lawful Evil*
+**Armor Class** 16 (scale mail, shield)  
+**Hit Points** 26 (4d8 + 8)  
+**Speed** 25 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 14 (+2) | 11 (+0) | 14 (+2) | 11 (+0) | 10 (+0) | 9 (-1) |
+**Damage Resistances** Poison  
+**Senses** Darkvision 120 ft., passive Perception 10  
+**Languages** Dwarvish, Undercommon  
+**Challenge** 1 (200 XP)
+### Traits
+**Duergar Resilience.** Advantage på saving throws mot Charmed, Paralyzed og Stunned (og mot illusjoner).
+**Sunlight Sensitivity.** I sollys har den Disadvantage på attack rolls og på Perception-checks som krever syn.
+### Actions
+**Enlarge (Recharges after Short or Long Rest).** I 1 minutt blir den Large sammen med utstyret. Advantage på Str-checks og Str-saves, og våpenangrepene gjør ekstra damage (se under).
+**War Pick.** *Melee Attack Roll:* +4, reach 5 ft. *Hit:* 6 (1d8 + 2) piercing damage, eller 11 (2d8 + 2) når Enlarged.
+**Javelin.** *Melee or Ranged Attack Roll:* +4, reach 5 ft. eller range 30/120 ft. *Hit:* 5 (1d6 + 2) piercing damage, eller 9 (2d6 + 2) når Enlarged.
+**Invisibility (Recharges after Short or Long Rest).** Blir usynlig i opptil 1 time (Concentration) til den angriper, kaster en spell eller bruker Enlarge. Utstyret blir usynlig med den.` },
+  { id: 'npc-krentz', md: `# Bandit Krentz (Mann)
+*Medium or Small Humanoid, Neutral*
+**Armor Class** 12  
+**Initiative** +1 (11)  
+**Hit Points** 11 (2d8 + 2)  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 11 (+0) | 12 (+1) | 12 (+1) | 10 (+0) | 10 (+0) | 10 (+0) |
+**Gear** Leather Armor, Light Crossbow, Scimitar  
+**Senses** passive Perception 10  
+**Languages** Common, Thieves' Cant  
+**Challenge** 1/8 (25 XP)
+### Actions
+**Scimitar.** *Melee Attack Roll:* +3, reach 5 ft. *Hit:* 4 (1d6 + 1) slashing damage.
+**Light Crossbow.** *Ranged Attack Roll:* +3, range 80/320 ft. *Hit:* 5 (1d8 + 1) piercing damage.` },
+  { id: 'npc-grayooze', md: `# Gray Ooze (Slim)
+*Medium Ooze, Unaligned*
+**Armor Class** 9  
+**Initiative** -2 (13)  
+**Hit Points** 22 (3d8 + 9)  
+**Speed** 10 ft., Climb 10 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 12 (+1) | 6 (-2) | 16 (+3) | 1 (-5) | 6 (-2) | 2 (-4) |
+**Skills** Stealth +2  
+**Damage Resistances** Acid, Cold, Fire  
+**Condition Immunities** Blinded, Charmed, Deafened, Exhaustion, Frightened, Grappled, Prone, Restrained  
+**Senses** Blindsight 60 ft., passive Perception 8  
+**Languages** Ingen  
+**Challenge** 1/2 (100 XP)
+### Traits
+**Amorphous.** Kan presse seg gjennom åpninger helt ned til 1 tomme uten ekstra bevegelse.
+**Corrosive Form.** Ikke-magisk ammunisjon blir ødelagt når den treffer. Ikke-magiske våpen som rører den får kumulativ −1 på attack rolls og ødelegges ved −5 (Mending fjerner straffen). Den kan spise seg gjennom 2 tommer ikke-magisk metall eller tre på 1 runde.
+### Actions
+**Pseudopod.** *Melee Attack Roll:* +3, reach 5 ft. *Hit:* 10 (2d8 + 1) acid damage. Ikke-magisk rustning på målet får −1 AC per treff og ødelegges hvis AC faller til 10 (Mending fjerner straffen).` },
+  { id: 'npc-grumshar', md: `# Grum'shar (Lærling)
+*Medium Humanoid, Chaotic Evil*
+**Armor Class** 12  
+**Hit Points** 20  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 10 (+0) | 12 (+1) | 12 (+1) | 14 (+2) | 12 (+1) | 10 (+0) |
+**Senses** passive Perception 11  
+**Languages** Common, Undercommon  
+**Challenge** 1/2
+### Actions
+**Dagger.** *Melee or Ranged Attack Roll:* +3, reach 5 ft. eller range 20/60 ft. *Hit:* 3 (1d4 + 1) piercing damage.
+**Spark.** *Ranged Attack Roll:* +4, range 60 ft. *Hit:* 7 (2d6) force damage.` },
+  { id: 'npc-nihiloor', md: `# Mind Flayer Nihiloor (Skikkelse)
+*Medium Aberration, Lawful Evil*
+**Armor Class** 15 (breastplate)  
+**Initiative** +4 (14)  
+**Hit Points** 99 (18d8 + 18)  
+**Speed** 30 ft., Fly 15 ft. (hover)
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 11 (+0) | 12 (+1) | 12 (+1) | 19 (+4) | 17 (+3) | 17 (+3) |
+**Saves** Dex +4, Int +7, Wis +6, Cha +6  
+**Skills** Arcana +7, Insight +6, Perception +6, Stealth +4  
+**Damage Resistances** Psychic  
+**Senses** Darkvision 120 ft., passive Perception 16  
+**Languages** Deep Speech, Undercommon, telepathy 120 ft.  
+**Challenge** 7 (2 900 XP)
+### Traits
+**Magic Resistance.** Advantage på saving throws mot spells og andre magiske effekter.
+### Actions
+**Tentacles.** *Melee Attack Roll:* +7, reach 5 ft. *Hit:* 22 (4d8 + 4) psychic damage. Er målet Medium eller mindre, blir det Grappled (escape DC 14) og Stunned til grepet slippes.
+**Extract Brain.** Mot en skapning som er Grappled av Tentacles: Con save DC 15, 55 (10d10) piercing damage ved feil, halvparten ved suksess. Går målet ned til 0 HP, dør det og hjernen blir spist.
+**Mind Blast (Recharge 5–6).** 60 ft. cone. Int save DC 15: 31 (6d8 + 4) psychic damage og Stunned til slutten av flayerens neste tur ved feil, halvparten ved suksess.
+**Spellcasting.** Intelligence (DC 15), ingen komponenter. At will: *Detect Thoughts*. 1/day hver: *Dominate Monster*, *Plane Shift* (bare seg selv).` },
+  { id: 'npc-kenku', md: `# Kenku
+*Medium Monstrosity, Neutral*
+**Armor Class** 13  
+**Initiative** +3 (13)  
+**Hit Points** 13 (3d8)  
+**Speed** 30 ft.
+| STR | DEX | CON | INT | WIS | CHA |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 10 (+0) | 16 (+3) | 10 (+0) | 11 (+0) | 10 (+0) | 10 (+0) |
+**Skills** Deception +4, Perception +2, Stealth +5  
+**Senses** Darkvision 60 ft., passive Perception 12  
+**Languages** Common, Primordial (Auran)  
+**Challenge** 1/4 (50 XP)
+### Traits
+**Mimicry.** The kenku can mimic any sounds it has heard, including voices. A creature that hears the sounds can tell they are imitations with a successful DC 14 Wisdom (Insight) check.
+### Actions
+**Shadow Blade.** *Melee or Ranged Attack Roll:* +5, reach 5 ft. or range 60 ft. *Hit:* 6 (1d6 + 3) necrotic damage. *Hit or Miss:* The blade magically returns to the kenku's hand immediately after a ranged attack.
+### Bonus Actions
+**Eldritch Lantern (Recharge 4–6).** The kenku casts *Faerie Fire*, using Intelligence as the spellcasting ability (spell save DC 10).` }
+];
+
+/* ---------- tilstand ---------- */
+const newCoins = () => ({ cp: 0, sp: 0, gp: 0, pp: 0 });
+const DEFAULTS = {
+  combat: () => ({ round: 1, active: null, running: false, seq: 0, list: [] }),
+  notes: () => ({ start: '18:00', end: '21:00', items: [] })
+};
+const LOCKED_PCS = [{ id: 'pc-sariel', name: 'Sariel' }, { id: 'pc-ekko', name: 'Ekko' }, { id: 'pc-andoran', name: 'Andoran' }, { id: 'pc-marcus', name: 'Marcus' }];
+const REMOVED_IDS = ['pc-tina'];
+const NORM = {
+  catalog: normCatalog,
+  npcs(d) {
+    const n = Object.assign({ list: [] }, d || {});
+    n.list = Array.isArray(n.list) ? n.list.filter(x => x && x.id && typeof x.md === 'string') : [];
+    n.seeded = Array.isArray(n.seeded) ? n.seeded : [];
+    SEED_NPCS.forEach(sd => {
+      if (n.seeded.includes(sd.id)) return;
+      n.seeded.push(sd.id);
+      if (!n.list.some(x => x.id === sd.id)) n.list.push({ id: sd.id, md: sd.md });
+    });
+    return n;
+  },
+  notes(d) {
+    const n = Object.assign(DEFAULTS.notes(), d || {});
+    const a = parseHM(n.start), b = parseHM(n.end);
+    n.start = fmtHM(a == null ? 18 * 60 : a); n.end = fmtHM(b == null ? 21 * 60 : b);
+    n.items = Array.isArray(n.items) ? n.items.filter(x => x && x.id && typeof x.text === 'string') : [];
+    delete n.next;
+    delete n.recap;
+    return n;
+  },
+  combat(d) {
+    const c = Object.assign(DEFAULTS.combat(), d || {});
+    c.list = Array.isArray(c.list) ? c.list : [];
+    delete c.ui;
+    c.list.forEach(x => { if (!Array.isArray(x.conds)) x.conds = []; });
+    LOCKED_PCS.forEach((p, i) => {
+      const ex = c.list.find(x => x.id === p.id);
+      if (ex) ex.locked = true;
+      else c.list.push({ id: p.id, n: i + 1, name: p.name, kind: 'pc', init: null, hp: 0, max: 0, ac: p.ac == null ? null : p.ac, conds: [], locked: true });
+    });
+    c.list = c.list.filter(x => !REMOVED_IDS.includes(x.id));
+    c.seq = Math.max(c.seq || 0, LOCKED_PCS.length);
+    return c;
+  }
+};
+const S = { catalog: NORM.catalog(), combat: NORM.combat(), npcs: NORM.npcs(), notes: NORM.notes() };
+const KEYS = ['catalog', 'combat', 'npcs', 'notes'];
+
+/* ---------- lagring ---------- */
+let db = null, downloads = null;
+const loaded = {}, saveTimers = {}, inflight = {}, dirty = {};
+function setStatus(kind) {
+  const el = $('#status');
+  el.className = 'status';
+  const t = { saving: 'Lagrer…', saved: 'Lagret', saved0: 'Lagret', err: 'Kunne ikke lagre', off: 'Ingen lagring her', slow: 'Får ikke kontakt med lagringen' }[kind] || '';
+  el.textContent = t;
+  if (kind === 'saved' || kind === 'saved0') el.classList.add('ok');
+  if (kind === 'err' || kind === 'slow' || kind === 'off') el.classList.add('bad');
+}
+function queueSave(key) {
+  if (!db || !loaded[key]) return;
+  clearTimeout(saveTimers[key]);
+  setStatus('saving');
+  saveTimers[key] = setTimeout(() => flush(key), 300);
+}
+async function flush(key) {
+  dbg('flush ' + key + (inflight[key] ? ' (venter)' : ''));
+  saveTimers[key] = null;
+  if (inflight[key]) { dirty[key] = true; return; }
+  inflight[key] = true;
+  try {
+    S[key].rev = Date.now();
+    if (key === 'combat') dbg('sender: ' + S.combat.list.map(x => x.name + '=' + x.init).join(' '));
+    await db.doc('dm/' + key).set(JSON.parse(JSON.stringify(S[key])));
+    setStatus('saved');
+  } catch (e) { setStatus('err'); }
+  inflight[key] = false;
+  if (dirty[key]) { dirty[key] = false; flush(key); }
+}
+let heldAdopt = null;
+const typingInCombat = () => { const a = document.activeElement; return !!(a && a.tagName === 'INPUT' && a.closest && a.closest('#combat')); };
+const typingInNotes = () => { const a = document.activeElement; return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && a.closest && a.closest('#notes')); };
+document.addEventListener('focusout', () => setTimeout(() => { if (!typingInCombat()) heldAdopt = null; }, 0));
+function adopt(key, data) {
+  dbg('adopt ' + key + ' rev=' + (data && data.rev) + ' lokal=' + (S[key].rev || 0) + (key === 'combat' && typingInCombat() ? ' HOLDT' : ''));
+  if (key === 'combat' && typingInCombat()) { heldAdopt = { data }; return; }
+  if (key === 'notes' && typingInNotes()) return;
+  if (data && (Number.isFinite(data.rev) ? data.rev : 0) < (S[key].rev || 0)) return; // gammelt øyeblikksbilde: lokal endring er nyere
+  const next = NORM[key](data);
+  if (JSON.stringify(next) === JSON.stringify(S[key])) return;
+  S[key] = next;
+  if (key === 'catalog') renderCatalog();
+  else if (key === 'npcs') { renderNpc(); renderSheets(); }
+  else if (key === 'notes') renderNotes();
+  else renderCombat();
+}
+const unlock = () => document.body.classList.remove('loading');
+
+/* ---------- valutakonverter ---------- */
+let convInput, convOut, convMsg, convUnit = 'gp';
+function initConv() {
+  convInput = h('input', { type: 'text', value: '18', inputmode: 'decimal', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Beløp', placeholder: 'Beløp', oninput: updateConv });
+  convOut = h('div', { class: 'coinrows' });
+  convMsg = h('div', { class: 'msg' });
+  const units = h('div', { class: 'units', role: 'radiogroup', 'aria-label': 'Mynttype' },
+    ['pp', 'gp', 'sp', 'cp'].map(u => h('label', { class: 'unit' },
+      h('input', { type: 'radio', name: 'unit', value: u, checked: u === convUnit, onchange: () => { convUnit = u; updateConv(); } }),
+      h('span', {}, u.toUpperCase()))));
+  $('#conv').replaceChildren(
+    h('div', { class: 'convin' }, convInput, units),
+    convOut, h('div', { class: 'split', id: 'conv-split' }), convMsg);
+  updateConv();
+}
+function flashConv(text, kind) { convMsg.textContent = text; convMsg.className = 'msg ' + kind; }
+function updateConv() {
+  if (!convInput) return;
+  const r = parseMoney(convInput.value, convUnit);
+  convOut.replaceChildren();
+  const sp = $('#conv-split');
+  if (r.error) { flashConv(r.error, 'err'); sp.textContent = ''; return; }
+  flashConv('', '');
+  const dens = ['pp', 'gp', 'sp', 'cp'];
+  for (const d of dens) convOut.append(h('div', { class: 'coinrow' }, h('b', {}, d.toUpperCase()), h('span', {}, nf.format(r.cp / VAL[d]))));
+  const s = split(r.cp);
+  const txt = dens.filter(d => s[d]).map(d => nf.format(s[d]) + ' ' + d).join(' · ') || '0 cp';
+  sp.replaceChildren('Fordelt: ', h('b', {}, (r.cp < 0 ? '−' : '') + txt));
+}
+
+const catUi = { q: '', cat: null, sort: 'navn' };
+function catSave() { queueSave('catalog'); }
+function renderCatalog() {
+  const root = $('#catalog'); if (!root) return;
+  const items = S.catalog.items;
+  const cats = CAT_ORDER.filter(c => items.some(x => x.cat === c)).concat([...new Set(items.map(x => x.cat))].filter(c => !CAT_ORDER.includes(c)));
+  const q = catUi.q.trim().toLowerCase();
+  const inList = !!(catUi.cat || q);
+  const search = h('input', { type: 'text', placeholder: 'Søk i katalogen', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Søk i katalogen', 'data-key': 'catq', value: catUi.q,
+    oninput: e => { catUi.q = e.target.value; renderCatalog(); } });
+  const hadFocus = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-key') === 'catq';
+  let main;
+  if (!inList) {
+    const tile = (label, cat, n) => h('button', { type: 'button', class: 'cattile', onclick: () => { catUi.cat = cat; renderCatalog(); } }, h('strong', {}, label), h('small', {}, n + (n === 1 ? ' vare' : ' varer')));
+    main = h('div', { class: 'cattiles' }, tile('Alle', 'ALLE', items.length), cats.map(c => tile(c, c, items.filter(x => x.cat === c).length)));
+  } else {
+    const cur = catUi.cat && catUi.cat !== 'ALLE' ? catUi.cat : null;
+    const shown = items.filter(x => (!cur || x.cat === cur) && (!q || (x.name + ' ' + x.note).toLowerCase().includes(q)))
+      .sort((a, b) => {
+        if (catUi.sort === 'stigende') return (a.cp - b.cp) || a.name.localeCompare(b.name, 'nb');
+        if (catUi.sort === 'synkende') return (b.cp - a.cp) || a.name.localeCompare(b.name, 'nb');
+        return (q ? (a.name.toLowerCase().startsWith(q) ? 0 : 1) - (b.name.toLowerCase().startsWith(q) ? 0 : 1) : 0) || (cur ? 0 : cats.indexOf(a.cat) - cats.indexOf(b.cat)) || a.name.localeCompare(b.name, 'nb');
+      });
+    const sortSel = h('select', { class: 'sortsel', 'aria-label': 'Sorter', onchange: e => { catUi.sort = e.target.value; renderCatalog(); } },
+      [['navn', 'Navn A–Å'], ['stigende', 'Pris ↑'], ['synkende', 'Pris ↓']].map(o => h('option', { value: o[0], selected: catUi.sort === o[0] }, o[1])));
+    const back = h('button', { type: 'button', class: 'btn small', onclick: () => { catUi.cat = null; catUi.q = ''; renderCatalog(); } }, '◀ Kategorier');
+    const list = h('ul', { class: 'list catlist' }, shown.length ? shown.map(x => h('li', {},
+      h('div', { class: 'item' },
+        h('span', { class: 'nm' }, h('strong', {}, x.name), h('em', {}, (cur ? '' : x.cat + (x.note ? ' · ' : '')) + x.note)),
+        h('b', { class: 'price' }, fmtPrice(x.cp)))))
+      : [h('li', { class: 'muted' }, 'Ingen treff.')]);
+    main = [h('div', { class: 'row catbar' }, back, h('strong', { class: 'cattitle' }, cur || 'Alle'), sortSel), list];
+  }
+  root.replaceChildren(search, ...[].concat(main));
+  if (hadFocus) { const s = root.querySelector('[data-key=catq]'); s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
+}
+
+/* ---------- kamp ---------- */
+const KIND = { pc: 'Spiller', npc: 'NPC', monster: 'Fiende' };
+const sortedList = () => [...S.combat.list].sort((a, b) => ((b.init == null ? -1e9 : b.init) - (a.init == null ? -1e9 : a.init)) || (a.n - b.n));
+const skipped = c => c.kind === 'monster' && c.max > 0 && c.hp <= 0;
+function saveCombat() { queueSave('combat'); renderCombat(); }
+function startCombat() {
+  const c = S.combat, l = sortedList().filter(x => !skipped(x));
+  c.running = true; c.round = 1; c.active = l.length ? l[0].id : null; saveCombat();
+}
+function endCombat() {
+  const c = S.combat;
+  c.running = false; c.active = null; c.round = 1;
+  c.list.forEach(x => { if (x.kind === 'pc') x.init = null; });
+  saveCombat();
+}
+function advance(dir) {
+  const c = S.combat, list = sortedList();
+  if (!list.length) return;
+  let idx = list.findIndex(x => x.id === c.active);
+  if (idx < 0) idx = dir > 0 ? -1 : 0;
+  for (let i = 0; i < list.length; i++) {
+    idx += dir;
+    if (idx >= list.length) { idx = 0; c.round++; }
+    if (idx < 0) { idx = list.length - 1; c.round = Math.max(1, c.round - 1); }
+    if (skipped(list[idx])) continue;
+    c.active = list[idx].id; break;
+  }
+  saveCombat();
+}
+function addCombatants(form) {
+  const name = form.name.value.trim();
+  if (!name) { form.name.focus(); return false; }
+  const count = Math.min(20, Math.max(1, toInt(form.count.value, 1)));
+  const hp = Math.max(0, toInt(form.hp.value, 0)), ac = toInt(form.ac.value, null);
+  const bonus = toInt(form.bonus.value, 0), kind = form.kind.value;
+  for (let i = 0; i < count; i++) {
+    let init = toInt(form.init.value, null);
+    if (init == null) init = rnd(20) + bonus;
+    S.combat.list.push({ id: uid(), n: ++S.combat.seq, name: count > 1 ? name + ' ' + (i + 1) : name, kind, init, hp, max: hp, temp: 0, ac, conds: [] });
+  }
+  saveCombat();
+  return true;
+}
+function damage(c, v) {
+  const absorbed = Math.min(c.temp || 0, v);
+  c.temp = (c.temp || 0) - absorbed;
+  c.hp = Math.max(0, c.hp - (v - absorbed));
+}
+const mf = (label, input) => h('label', { class: 'mf' }, h('span', {}, label), input);
+function numIn(cls, value, label, onchange, extra) {
+  return h('input', Object.assign({ class: cls, type: 'number', min: '0', inputmode: 'numeric', value, 'aria-label': label, onchange }, extra || {}));
+}
+/* ---------- overlay ---------- */
+let pop = null;
+function closePop() {
+  if (!pop) return;
+  pop.el.remove();
+  document.removeEventListener('pointerdown', pop.down, true);
+  document.removeEventListener('keydown', pop.kd, true);
+  window.removeEventListener('resize', closePop);
+  pop = null;
+}
+function openPop(key, anchor, el, focusEl) {
+  const same = pop && pop.key === key;
+  closePop();
+  if (same) return;
+  el.classList.add('pop');
+  document.body.append(el);
+  const r = anchor.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+  el.style.left = Math.max(8, Math.min(r.left, vw - el.offsetWidth - 8)) + 'px';
+  if (vh - r.bottom < 260 && r.top > vh - r.bottom) {
+    el.style.bottom = (vh - r.top + 6) + 'px'; el.style.maxHeight = Math.max(160, r.top - 14) + 'px';
+  } else {
+    el.style.top = (r.bottom + 6) + 'px'; el.style.maxHeight = Math.max(160, vh - r.bottom - 18) + 'px';
+  }
+  const down = e => {
+    const t = e.target;
+    if (el.contains(t) || (t.closest && t.closest('[data-pop="' + key + '"]'))) return;
+    closePop();
+  };
+  const kd = e => { if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); closePop(); } };
+  document.addEventListener('pointerdown', down, true);
+  document.addEventListener('keydown', kd, true);
+  window.addEventListener('resize', closePop);
+  pop = { key, el, down, kd };
+  if (focusEl) focusEl.focus();
+}
+
+const CONDITIONS = ['Blinded', 'Charmed', 'Deafened', 'Exhaustion', 'Frightened', 'Grappled', 'Incapacitated', 'Invisible', 'Paralyzed', 'Petrified', 'Poisoned', 'Prone', 'Restrained', 'Stunned', 'Unconscious'];
+function openCondPop(id, anchor) {
+  const cur = () => S.combat.list.find(x => x.id === id);
+  const c0 = cur(); if (!c0) return;
+  const btns = CONDITIONS.map(n => {
+    const b = h('button', { type: 'button', class: 'condopt' + ((c0.conds || []).includes(n) ? ' on' : ''), onclick: () => {
+      const c = cur(); if (!c) return;
+      const l = c.conds || [];
+      c.conds = l.includes(n) ? l.filter(x => x !== n) : l.concat(n);
+      b.classList.toggle('on', c.conds.includes(n));
+      saveCombat();
+    } }, n);
+    return b;
+  });
+  openPop('cond-' + id, anchor, h('div', { class: 'condgrid' }, btns));
+}
+
+function openAddPop(anchor) {
+  const q = h('input', { type: 'text', placeholder: 'Søk NPC eller fiende', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Søk etter NPC eller fiende' });
+  const cnt = h('input', { type: 'number', class: 'cnt', min: '1', max: '20', value: '1', 'aria-label': 'Antall', title: 'Antall' });
+  const list = h('ul', { class: 'nlist' });
+  const msg = h('div', { class: 'muted' });
+  const draw = () => {
+    const items = secretAsk ? [] : npcMatches(q.value);
+    const extra = secretRows(draw, q.value.trim() === '');
+    if (secretAsk) { list.replaceChildren(...extra); return; }
+    list.replaceChildren(...(items.length ? items.map(n => h('li', {}, h('button', { type: 'button', class: 'nitem', onclick: () => {
+      const k = Math.min(20, Math.max(1, toInt(cnt.value, 1)));
+      addNpcToCombat(n, k, false);
+      msg.textContent = 'Lagt til: ' + (k > 1 ? k + ' × ' : '') + combatLabel(n);
+      cnt.value = '1';
+    } }, npcShow(n.md)))) : [h('li', { class: 'muted' }, S.npcs.list.length ? 'Ingen treff.' : 'Ingen NPC-er ennå.')]), ...extra);
+  };
+  q.addEventListener('input', draw);
+  q.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const first = list.querySelector('.nitem'); if (first) first.click(); } });
+  const f = {}, field = (key, label, attrs, cls) => { f[key] = h('input', Object.assign({ id: 'cf-' + key }, attrs)); return h('label', { class: cls || '' }, label, f[key]); };
+  f.kind = h('select', { id: 'cf-kind' }, h('option', { value: 'monster' }, 'Fiende'), h('option', { value: 'npc' }, 'NPC'), h('option', { value: 'pc' }, 'Spiller'));
+  const form = h('form', { class: 'addform', hidden: true, onsubmit: e => { e.preventDefault(); if (addCombatants(f)) { msg.textContent = 'Lagt til: ' + f.name.value.trim(); f.name.value = ''; } } },
+    field('name', 'Navn', { type: 'text', placeholder: 'Goblin', autocomplete: 'off' }, 'wide'),
+    field('count', 'Ant.', { type: 'number', min: '1', max: '20', value: '1' }),
+    field('hp', 'HP', { type: 'number', min: '0', inputmode: 'numeric' }),
+    field('ac', 'AC', { type: 'number', min: '0', inputmode: 'numeric' }),
+    field('init', 'Init', { type: 'number', inputmode: 'numeric', placeholder: 'Sum' }),
+    field('bonus', 'Bonus', { type: 'number', inputmode: 'numeric', value: '0' }),
+    h('label', {}, 'Type', f.kind),
+    h('button', { type: 'submit', class: 'btn primary small' }, 'Legg til'));
+  const toggle = h('button', { type: 'button', class: 'btn small', onclick: () => { form.hidden = !form.hidden; toggle.textContent = form.hidden ? 'Egendefinert ▾' : 'Egendefinert ▴'; if (!form.hidden) f.name.focus(); } }, 'Egendefinert ▾');
+  draw();
+  openPop('add', anchor, h('div', { class: 'addpop' }), q);
+  const el = pop.el;
+  el.style.display = 'grid';
+  el.append(h('div', { class: 'row' }, h('div', { class: 'grow' }, q), h('span', { class: 'muted' }, 'Antall'), cnt), list, msg, toggle, form);
+  q.focus();
+}
+
+/* ---------- kamp-rader ---------- */
+const ALLY_IDS = ['npc-tina'];
+const isAlly = n => !!n.ally || ALLY_IDS.includes(n.id);
+function combatLabel(npc) {
+  const name = npcName(npc.md), alias = npcAlias(name);
+  return alias ? alias.charAt(0).toUpperCase() + alias.slice(1) : npcBase(name);
+}
+function addNpcToCombat(npc, count, roll) {
+  const st = npcStats(npc.md), label = combatLabel(npc), kind = isAlly(npc) ? 'npc' : 'monster';
+  const esc = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), re = new RegExp('^' + esc + '(?: (\\d+))?$');
+  const same = S.combat.list.filter(x => re.test(x.name));
+  same.forEach(x => { if (x.name === label) x.name = label + ' 1'; });
+  const numbered = count > 1 || same.length > 0;
+  const start = same.length ? Math.max(...same.map(x => parseInt(re.exec(x.name)[1], 10))) + 1 : 1;
+  for (let i = 0; i < count; i++) {
+    S.combat.list.push({ id: uid(), n: ++S.combat.seq, name: numbered ? label + ' ' + (start + i) : label, kind, init: roll ? rnd(20) + st.dex : null, hp: st.hp, max: st.hp, temp: 0, ac: st.ac, conds: [] });
+  }
+  saveCombat();
+}
+function dsEl(c) {
+  const ds = Object.assign({ s: 0, f: 0 }, c.ds);
+  const dots = (key, cls, what) => [0, 1, 2].map(i => h('button', { type: 'button', class: 'dot ' + cls + (ds[key] > i ? ' on' : ''), 'aria-label': what + ' ' + (i + 1), onclick: () => {
+    const d = Object.assign({ s: 0, f: 0 }, c.ds); d[key] = d[key] === i + 1 ? i : i + 1; c.ds = d; saveCombat();
+  } }));
+  return h('div', { class: 'ds' }, h('span', {}, 'Death saves'), dots('s', 'ok', 'Suksess'), h('i', {}), dots('f', 'bad', 'Feil'));
+}
+function rowEl(c) {
+  const isPc = c.kind === 'pc';
+  const dead = skipped(c);
+  const down = c.kind === 'npc' && c.max > 0 && c.hp <= 0;
+  const active = S.combat.running && S.combat.active === c.id;
+  const conds = c.conds || [];
+  const condBtn = h('button', { type: 'button', class: 'btn small condbtn' + (conds.length ? ' on' : ''), 'data-pop': 'cond-' + c.id, title: 'Conditions', 'aria-label': 'Conditions for ' + c.name, onclick: e => openCondPop(c.id, e.currentTarget) }, conds.length ? String(conds.length) : '+');
+  const stats = [mf('Cond', condBtn), mf('AC', numIn('s', c.ac == null ? '' : c.ac, 'AC for ' + c.name, e => { c.ac = toInt(e.target.value, null); saveCombat(); }, { placeholder: '?' }))];
+  if (!isPc) {
+    stats.push(
+      mf('HP', h('span', { class: 'hpp' },
+        numIn('s', c.hp, 'HP nå for ' + c.name, e => { c.hp = Math.max(0, Math.min(c.max || Infinity, toInt(e.target.value, c.hp))); if (c.hp > 0) c.ds = null; saveCombat(); }),
+        h('i', {}, '/'),
+        numIn('s', c.max, 'Total HP for ' + c.name, e => {
+          const old = c.max; c.max = Math.max(0, toInt(e.target.value, c.max));
+          if (old === 0 && c.hp === 0) c.hp = c.max; else if (c.max > 0 && c.hp > c.max) c.hp = c.max;
+          saveCombat();
+        }))),
+      mf('Temp', numIn('s', c.temp || 0, 'Temp HP for ' + c.name, e => { c.temp = Math.max(0, toInt(e.target.value, 0)); saveCombat(); })));
+  }
+  const conc = h('button', { type: 'button', class: 'conc' + (c.conc ? ' on' : ''), title: 'Concentration', 'aria-label': 'Concentration for ' + c.name, 'aria-pressed': c.conc ? 'true' : 'false', onclick: () => { c.conc = !c.conc; saveCombat(); } }, 'C');
+  const tag = isPc ? h('small', {}, KIND.pc)
+    : h('button', { type: 'button', class: 'tag ' + c.kind, title: 'Bytt mellom NPC og Fiende', onclick: () => { c.kind = c.kind === 'npc' ? 'monster' : 'npc'; saveCombat(); } }, KIND[c.kind]);
+  return h('li', { class: 'cb ' + c.kind + (active ? ' active' : '') + (dead ? ' dead' : ''), 'data-id': c.id },
+    h('input', { class: 'init', type: 'text', inputmode: 'numeric', autocomplete: 'off', spellcheck: 'false', value: c.init == null ? '' : c.init, placeholder: '–', 'aria-label': 'Initiativ for ' + c.name, 'data-key': 'init-' + c.id,
+      onfocus: e => e.target.select(),
+      onchange: e => { const t = e.target.value.trim().replace('−', '-'); c.init = /^-?\d+$/.test(t) ? parseInt(t, 10) : null; saveCombat(); },
+      onkeydown: e => { if (e.key === 'Enter') e.target.blur(); } }),
+    h('div', { class: 'nm' },
+      h('div', { class: 'nm1' }, h('strong', {}, c.name), conc, tag),
+      conds.length ? h('div', { class: 'chips' }, conds.map(n => h('button', { type: 'button', class: 'chip', title: 'Fjern ' + n, onclick: () => { c.conds = conds.filter(x => x !== n); saveCombat(); } }, n))) : null,
+      down ? dsEl(c) : null),
+    h('div', { class: 'stats' }, stats),
+    c.locked ? null : h('button', { type: 'button', class: 'btn small sq xdel', title: 'Fjern', 'aria-label': 'Fjern ' + c.name, onclick: () => { S.combat.list = S.combat.list.filter(x => x !== c); if (S.combat.active === c.id) S.combat.active = null; saveCombat(); } }, '×'));
+}
+function renderCombat() {
+  const c = S.combat, root = $('#combat');
+  const bar = h('div', { class: 'cbar' }, h('span', { class: 'round' }, c.running ? 'Runde ' + c.round : 'Ingen kamp'),
+    c.running ? [h('button', { type: 'button', class: 'btn small', onclick: () => advance(-1) }, '◀ Tilbake'), h('button', { type: 'button', class: 'btn primary small', onclick: () => advance(1) }, 'Neste i rekken ▶'),
+      twoStep('Avslutt', 'Sikker?', endCombat, 'small')]
+      : h('button', { type: 'button', class: 'btn primary small', onclick: startCombat }, 'Start kamp'),
+    twoStep('Nullstill init', 'Sikker?', () => { c.list.forEach(x => { x.init = null; }); saveCombat(); }, 'small'),
+    twoStep('Fjern fiender', 'Sikker?', () => { c.list = c.list.filter(x => x.kind !== 'monster'); if (!c.list.some(x => x.id === c.active)) c.active = null; saveCombat(); }, 'small'));
+  const addBtn = h('button', { type: 'button', class: 'btn small', 'data-pop': 'add', onclick: e => openAddPop(e.currentTarget) }, '+ Legg til');
+  const body = h('ul', { class: 'clist' }, sortedList().map(rowEl));
+  keepFocus(() => root.replaceChildren(bar, h('div', { class: 'row' }, addBtn), body));
+  const act = root.querySelector('.cb.active');
+  if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest' });
+}
+
+/* ---------- NPC og stat blocks ---------- */
+const sheets = [];
+let zTop = 60;
+const npcName = md => {
+  const m = /^#\s+(.+)$/m.exec(md || '');
+  return m ? m[1].trim().replace(/\(([^)]+)\)\s*$/, (x, a) => '(' + a.charAt(0).toUpperCase() + a.slice(1) + ')') : 'Uten navn';
+};
+const npcAlias = name => { const m = /\(([^)]+)\)\s*$/.exec(name); return m ? m[1].trim() : null; };
+const npcShow = md => {
+  const name = npcName(md), a = npcAlias(name);
+  if (!a) return name;
+  const base = npcBase(name).toLowerCase();
+  return a.toLowerCase().split(/\s+/).every(w => base.includes(w)) ? npcBase(name) : name;
+};
+const npcBase = name => name.replace(/\s*\([^)]*\)\s*$/, '').trim() || name;
+const npcSub = md => { const m = /^\s*\*([^*]+)\*\s*$/m.exec(md || ''); return m ? m[1].trim() : ''; };
+function npcStats(md) {
+  const ac = /Armor Class\*{0,2}\s*(\d+)/i.exec(md), hp = /Hit Points\*{0,2}\s*(\d+)/i.exec(md);
+  let dex = 0;
+  for (const r of md.split('\n').filter(l => /^\s*\|/.test(l))) {
+    const cells = r.split('|').map(x => x.trim()).filter(Boolean);
+    if (cells.length === 6 && /\d/.test(cells[1])) {
+      const m = /\(([+\-−–]?\d+)\)/.exec(cells[1]);
+      if (m) dex = parseInt(m[1].replace(/[−–]/, '-'), 10);
+      else { const v = parseInt(cells[1], 10); if (!isNaN(v)) dex = Math.floor((v - 10) / 2); }
+      break;
+    }
+  }
+  return { ac: ac ? +ac[1] : null, hp: hp ? +hp[1] : 0, dex };
+}
+function inlineMd(text) {
+  const out = [], re = /\*\*(.+?)\*\*|\*(.+?)\*/g;
+  let last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    out.push(m[1] !== undefined ? h('strong', {}, inlineMd(m[1])) : h('em', {}, m[2]));
+    last = re.lastIndex;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
+function mdNodes(md) {
+  const out = []; let para = [], table = [];
+  const flushPara = () => {
+    if (!para.length) return;
+    const p = h('p', {});
+    para.forEach((ln, i) => { p.append(...inlineMd(ln.trim())); if (i < para.length - 1) p.append(h('br')); });
+    out.push(p); para = [];
+  };
+  const flushTable = () => {
+    if (!table.length) return;
+    const rows = table.map(r => r.replace(/^\s*\||\|\s*$/g, '').split('|').map(c => c.trim()));
+    const body = rows.filter(r => !r.every(c => /^:?-+:?$/.test(c)));
+    out.push(h('table', { class: 'abil' }, body.map((r, i) => h('tr', {}, r.map(c => h(i === 0 ? 'th' : 'td', {}, inlineMd(c)))))));
+    table = [];
+  };
+  for (const ln of String(md).replace(/\r/g, '').split('\n')) {
+    if (/^\s*\|/.test(ln)) { flushPara(); table.push(ln); continue; }
+    flushTable();
+    if (!ln.trim()) { flushPara(); continue; }
+    const hm = /^(#{1,3})\s+(.*)$/.exec(ln);
+    if (hm) { flushPara(); if (hm[1].length > 1) out.push(h('h4', { class: 'sec' }, hm[2])); continue; }
+    para.push(ln);
+  }
+  flushPara(); flushTable();
+  return out;
+}
+function toCombat(npc, btn) {
+  addNpcToCombat(npc, 1, true);
+  if (btn) { btn.textContent = 'Lagt til ✓'; setTimeout(() => { btn.textContent = 'Til kamp'; }, 1500); }
+}
+function openSheet(npcId, editing) {
+  const key = npcId || 'new-' + uid();
+  const ex = sheets.find(s => s.key === key);
+  if (ex) { ex.z = ++zTop; if (editing) ex.editing = true; }
+  else {
+    const k = sheets.length % 6, narrow = window.innerWidth < 960;
+    sheets.push({ key, npcId: npcId || null, editing: !!editing || !npcId, x: narrow ? 10 : Math.min(380 + k * 30, Math.max(10, window.innerWidth - 420)), y: 90 + k * 30, z: ++zTop });
+  }
+  renderSheets();
+}
+function closeSheet(key) { const i = sheets.findIndex(s => s.key === key); if (i >= 0) sheets.splice(i, 1); renderSheets(); }
+function sheetEl(sh) {
+  const npc = sh.npcId ? S.npcs.list.find(n => n.id === sh.npcId) : null;
+  if (sh.npcId && !npc) return null;
+  const el = h('div', { class: 'sheet', role: 'dialog', 'aria-label': npc ? npcName(npc.md) : 'Ny NPC', style: 'left:' + sh.x + 'px;top:' + sh.y + 'px;z-index:' + sh.z });
+  const head = h('div', { class: 'sh-head' }, h('strong', {}, npc ? npcShow(npc.md) : 'Ny NPC'),
+    h('button', { type: 'button', class: 'btn small sq', 'aria-label': 'Lukk', title: 'Lukk', onclick: () => closeSheet(sh.key) }, '×'));
+  let dx = 0, dy = 0, dragging = false;
+  head.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    dragging = true; dx = e.clientX - sh.x; dy = e.clientY - sh.y;
+    head.setPointerCapture(e.pointerId); head.classList.add('grab');
+  });
+  head.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    sh.x = Math.max(0, Math.min(window.innerWidth - 60, e.clientX - dx));
+    sh.y = Math.max(0, Math.min(window.innerHeight - 40, e.clientY - dy));
+    el.style.left = sh.x + 'px'; el.style.top = sh.y + 'px';
+  });
+  const stop = () => { dragging = false; head.classList.remove('grab'); };
+  head.addEventListener('pointerup', stop); head.addEventListener('pointercancel', stop);
+  el.addEventListener('pointerdown', () => { if (sh.z !== zTop) { sh.z = ++zTop; el.style.zIndex = sh.z; } });
+  let body;
+  if (sh.editing) {
+    const ta = h('textarea', { 'aria-label': 'Stat block i markdown', spellcheck: 'false', placeholder: '# Navn (kort navn)\n*Small beast, Neutral*\n\n**Armor Class** 13\n**Hit Points** 22 (5d6 + 5)\n…' });
+    ta.value = npc ? npc.md : '';
+    const save = () => {
+      const md = ta.value.trim(); if (!md) return;
+      if (npc) npc.md = md;
+      else { const id = uid(); S.npcs.list.push({ id, md }); sh.npcId = id; sh.key = id; }
+      sh.editing = false; queueSave('npcs'); renderNpc(); renderSheets();
+    };
+    body = [h('div', { class: 'sh-body' }, h('p', { class: 'muted' }, 'Lim inn stat blocken som markdown. Første linje med # blir navnet. Navn i parentes sist i tittelen brukes som kort navn og i søket.'), ta),
+      h('div', { class: 'sh-bar' }, h('button', { type: 'button', class: 'btn primary small', onclick: save }, 'Lagre'),
+        h('button', { type: 'button', class: 'btn small', onclick: () => { if (npc) { sh.editing = false; renderSheets(); } else closeSheet(sh.key); } }, 'Avbryt'),
+        npc ? twoStep('Slett NPC', 'Sikker?', () => { S.npcs.list = S.npcs.list.filter(x => x !== npc); queueSave('npcs'); renderNpc(); closeSheet(sh.key); }, 'small') : null)];
+  } else {
+    const tb = h('button', { type: 'button', class: 'btn primary small', onclick: e => toCombat(npc, e.currentTarget) }, 'Til kamp');
+    body = [h('div', { class: 'sh-body' }, mdNodes(npc.md)),
+      h('div', { class: 'sh-bar' }, tb, h('button', { type: 'button', class: 'btn small', onclick: () => { sh.editing = true; renderSheets(); } }, 'Rediger'))];
+  }
+  el.append(head, ...body);
+  return el;
+}
+function renderSheets() { $('#sheets').replaceChildren(...sheets.map(sheetEl).filter(Boolean)); }
+let npcQuery, npcList, npcToggle, npcLock, npcAll = false;
+const SECRET_IDS = ['npc-crocodile', 'npc-goblin', 'npc-zemk', 'npc-krentz', 'npc-grayooze', 'npc-grumshar', 'npc-nihiloor'];
+const SECRET_CODE = 'kenguru';
+const ICONS = {
+  lock: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  key: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6.5" cy="12" r="3.5"/><path d="M10 12h11M17 12v3.5M20.5 12v2.5"/></svg>'
+};
+const icon = n => { const e = document.createElement('span'); e.className = 'ico'; e.innerHTML = ICONS[n]; return e; };
+let secretOpen = false, secretAsk = false;
+const isSecret = n => SECRET_IDS.includes(n.id);
+function secretRows(redraw, withRows) {
+  const hidden = S.npcs.list.filter(isSecret);
+  if (!hidden.length) return [];
+  if (secretOpen) return [];
+  if (secretAsk) {
+    const inp = h('input', { type: 'text', placeholder: 'Kode', autocomplete: 'off', 'aria-label': 'Kode', class: 'codein' });
+    inp.addEventListener('keydown', e => {
+      e.stopPropagation();
+      if (e.key === 'Enter') { e.preventDefault(); if (inp.value.trim().toLowerCase() === SECRET_CODE) { secretOpen = true; secretAsk = false; redraw(); } else { inp.value = ''; inp.classList.add('bad'); } }
+      if (e.key === 'Escape') { secretAsk = false; redraw(); }
+    });
+    inp.addEventListener('input', () => inp.classList.remove('bad'));
+    inp.addEventListener('blur', () => setTimeout(() => { if (secretAsk && !(document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('codein'))) { secretAsk = false; redraw(); } }, 150));
+    setTimeout(() => inp.focus(), 0);
+    return [h('li', { class: 'coderow' }, icon('lock'), inp)];
+  }
+  const rows = withRows ? hidden.map(() => h('li', {}, h('button', { type: 'button', class: 'nitem secret', onclick: () => { secretAsk = true; redraw(); } }, icon('lock'), '••••••••'))) : [];
+  return rows;
+}
+function npcMatches(q) {
+  q = q.trim().toLowerCase();
+  const all = S.npcs.list.filter(n => secretOpen || !isSecret(n)).sort((a, b) => npcName(a.md).localeCompare(npcName(b.md), 'nb'));
+  if (!q) return all;
+  const rank = n => {
+    const name = npcName(n.md).toLowerCase(), words = name.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+    if (words.some(w => w.startsWith(q))) return 0;
+    if (name.includes(q)) return 1;
+    if (npcSub(n.md).toLowerCase().includes(q)) return 2;
+    return 9;
+  };
+  return all.map(n => [rank(n), n]).filter(x => x[0] < 9).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+}
+function placeNpcList() {
+  if (!npcQuery || !npcQuery.isConnected) return;
+  const r = npcQuery.getBoundingClientRect(), vh = window.innerHeight;
+  const w = $('#npc').getBoundingClientRect();
+  npcList.style.left = w.left + 'px'; npcList.style.width = w.width + 'px';
+  if (vh - r.bottom < 200 && r.top > vh - r.bottom) { npcList.style.top = ''; npcList.style.bottom = (vh - r.top + 6) + 'px'; }
+  else { npcList.style.bottom = ''; npcList.style.top = (r.bottom + 6) + 'px'; }
+}
+function renderNpc() {
+  if (!npcList) return;
+  const hasQ = npcQuery.value.trim() !== '';
+  const open = npcAll || hasQ || secretAsk || document.activeElement === npcQuery;
+  npcList.hidden = !open;
+  if (open) placeNpcList();
+  if (npcLock) npcLock.replaceChildren(icon(secretOpen ? 'key' : 'lock'));
+  if (npcToggle) npcToggle.textContent = npcAll ? 'Skjul alle' : 'Vis alle';
+  const items = secretAsk ? [] : npcMatches(npcAll ? '' : npcQuery.value);
+  const extra = secretRows(renderNpc, !hasQ);
+  if (secretAsk) { npcList.replaceChildren(...extra); return; }
+  npcList.replaceChildren(...(items.length
+    ? items.map(n => h('li', {}, h('button', { type: 'button', class: 'nitem', onclick: () => { openSheet(n.id); npcAll = false; npcQuery.value = ''; npcQuery.blur(); renderNpc(); } }, npcShow(n.md))))
+    : [h('li', { class: 'muted' }, S.npcs.list.length ? 'Ingen treff.' : 'Ingen NPC-er ennå. Trykk + Ny.')]), ...extra);
+}
+function initNpc() {
+  npcQuery = h('input', { type: 'text', placeholder: 'Søk NPC', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Søk etter NPC' });
+  npcList = h('ul', { class: 'nlist npcdrop' }); npcList.hidden = true; document.body.appendChild(npcList);
+  window.addEventListener('resize', () => { if (!npcList.hidden) placeNpcList(); });
+  npcLock = h('button', { type: 'button', class: 'btn small', title: 'Skjulte karakterer', 'aria-label': 'Lås opp eller lås skjulte karakterer', onclick: () => { if (secretOpen) { secretOpen = false; secretAsk = false; } else secretAsk = !secretAsk; renderNpc(); } }, icon('lock'));
+  npcToggle = h('button', { type: 'button', class: 'btn small', onclick: () => { npcAll = !npcAll; npcQuery.value = ''; renderNpc(); } }, 'Vis alle');
+  npcQuery.addEventListener('input', () => { npcAll = false; renderNpc(); });
+  npcQuery.addEventListener('focus', renderNpc);
+  npcQuery.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== npcQuery) { npcAll = false; renderNpc(); } }, 150));
+  npcQuery.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { const first = npcList.querySelector('.nitem'); if (first) first.click(); }
+    if (e.key === 'Escape') { npcQuery.value = ''; npcAll = false; npcQuery.blur(); renderNpc(); }
+  });
+  $('#npc').replaceChildren(h('div', { class: 'row' }, h('div', { class: 'grow' }, npcQuery),
+    npcToggle,
+    npcLock));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && sheets.length && !/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '')) {
+      const top = sheets.reduce((a, b) => (b.z > a.z ? b : a)); if (!top.editing) closeSheet(top.key);
+    }
+  });
+  renderNpc();
+}
+
+/* ---------- regler ---------- */
+const RULE_CATS = ['Conditions', 'Kamp', 'Actions', 'Skade og hvile', 'Sjekker og utforsking'];
+const RULES = [
+  ['Conditions', 'Blinded', 'Kan ikke se og feiler automatisk checks som krever syn. Attack rolls mot deg har Advantage, og dine attack rolls har Disadvantage.'],
+  ['Conditions', 'Charmed', 'Kan ikke angripe charmeren eller velge den som mål for skadelige effekter. Charmeren har Advantage på sosiale checks mot deg.'],
+  ['Conditions', 'Deafened', 'Kan ikke høre og feiler automatisk checks som krever hørsel.'],
+  ['Conditions', 'Exhaustion', 'Nivå 1–6. Alle d20 Tests får −2 per nivå, og Speed reduseres med 5 ft per nivå. Nivå 6 er død. En long rest fjerner ett nivå.'],
+  ['Conditions', 'Frightened', 'Disadvantage på ability checks og attack rolls mens du ser kilden til frykten. Du kan ikke frivillig flytte deg nærmere den.'],
+  ['Conditions', 'Grappled', 'Speed 0. Disadvantage på attack rolls mot alle unntatt grapperen. Grapperen kan dra deg med seg. Escape: Athletics eller Acrobatics mot DC 8 + grapperens Str mod + Proficiency Bonus.'],
+  ['Conditions', 'Incapacitated', 'Ingen actions, bonus actions eller reactions. Concentration brytes, og du kan ikke snakke. Disadvantage på Initiative hvis du er Incapacitated når du ruller.'],
+  ['Conditions', 'Invisible', 'Kan ikke ses uten spesiell sans. Advantage på Initiative. Attack rolls mot deg har Disadvantage, og dine har Advantage.'],
+  ['Conditions', 'Paralyzed', 'Incapacitated og Speed 0. Feiler Str og Dex saves. Attack rolls mot deg har Advantage, og treff fra innen 5 ft er critical hits.'],
+  ['Conditions', 'Petrified', 'Gjort til stein. Incapacitated, Speed 0, feiler Str og Dex saves, og attack rolls mot deg har Advantage. Resistance mot all skade og immun mot Poisoned.'],
+  ['Conditions', 'Poisoned', 'Disadvantage på attack rolls og ability checks.'],
+  ['Conditions', 'Prone', 'Kan bare krype, eller reise deg (koster halvparten av Speed). Disadvantage på dine attack rolls. Attack rolls mot deg har Advantage fra innen 5 ft, ellers Disadvantage.'],
+  ['Conditions', 'Restrained', 'Speed 0. Attack rolls mot deg har Advantage, og dine har Disadvantage. Disadvantage på Dex saves.'],
+  ['Conditions', 'Stunned', 'Incapacitated. Feiler Str og Dex saves. Attack rolls mot deg har Advantage.'],
+  ['Conditions', 'Unconscious', 'Incapacitated og Prone, Speed 0, og du slipper det du holder. Feiler Str og Dex saves. Attack rolls mot deg har Advantage, og treff fra innen 5 ft er critical hits.'],
+
+  ['Kamp', 'Initiative', 'Dexterity check (d20 + Dex mod) i starten av kampen. Høyest total går først.'],
+  ['Kamp', 'Surprise', 'Er du overrasket, har du Disadvantage på Initiative-rollet ditt.'],
+  ['Kamp', 'Advantage og Disadvantage', 'Kast to d20 og ta den høyeste (Advantage) eller laveste (Disadvantage). Flere kilder stabler ikke, og Advantage og Disadvantage kansellerer hverandre.'],
+  ['Kamp', 'Critical hit', 'Natural 20 på en attack roll. Kast alle damage dice dobbelt.'],
+  ['Kamp', 'Opportunity Attack', 'Reaction: én melee attack mot en synlig fiende som frivillig forlater reach din. Utløses ikke av teleportering eller hvis den blir flyttet mot sin vilje.'],
+  ['Kamp', 'Two-Weapon Fighting', 'Når du angriper med en Light weapon, kan du bruke bonus action til å angripe med en annen Light weapon. Du legger ikke til ability modifier på skaden, med mindre den er negativ.'],
+  ['Kamp', 'Ranged i nærkamp', 'Disadvantage på ranged attack roll hvis en fiende innen 5 ft kan se deg og ikke er Incapacitated.'],
+  ['Kamp', 'Long range', 'Disadvantage på attack roll mot mål utenfor normal range, opp til long range.'],
+  ['Kamp', 'Cover', 'Half cover: +2 AC og Dex saves. Three-quarters cover: +5. Total cover: kan ikke velges som mål direkte.'],
+  ['Kamp', 'Grapple og Shove', 'Valg under Unarmed Strike. Målet gjør Str eller Dex save mot DC 8 + Str mod + Proficiency Bonus. Grapple gir Grappled. Shove skyver 5 ft eller gjør målet Prone. Målet kan være maks én size større.'],
+  ['Kamp', 'Unarmed Strike', '1 + Str mod bludgeoning damage.'],
+  ['Kamp', 'Reaction og bonus action', 'Én reaction per runde, maks én bonus action per tur, og én gratis objektinteraksjon per tur.'],
+  ['Kamp', 'Bevegelse', 'Kan deles opp før og etter actions. Å reise seg fra Prone koster halve Speed. Difficult terrain, klatring og svømming koster 1 ekstra ft per ft.'],
+
+  ['Actions', 'Attack', 'Angrip med et våpen eller Unarmed Strike.'],
+  ['Actions', 'Dash', 'Ekstra bevegelse lik din Speed denne turen.'],
+  ['Actions', 'Disengage', 'Din bevegelse utløser ikke Opportunity Attacks resten av turen.'],
+  ['Actions', 'Dodge', 'Frem til starten av din neste tur har attack rolls mot deg Disadvantage (hvis du ser angriperen), og du har Advantage på Dex saves. Mistes hvis du blir Incapacitated eller Speed er 0.'],
+  ['Actions', 'Help', 'Gi en alliert Advantage på neste ability check, eller på neste attack roll mot en fiende innen 5 ft av deg, før starten av din neste tur.'],
+  ['Actions', 'Hide', 'Dexterity (Stealth) check mot DC 15 mens du er heavily obscured eller bak cover. Ved suksess blir du Invisible til du blir funnet eller angriper.'],
+  ['Actions', 'Ready', 'Velg en trigger og en action. Når triggeren skjer, bruker du reaction til å gjøre den. En readied spell bruker spell slot og krever Concentration.'],
+  ['Actions', 'Search', 'Wisdom check: Perception, Insight, Medicine eller Survival.'],
+  ['Actions', 'Influence', 'Charisma check (Deception, Intimidation, Performance, Persuasion) eller Wisdom (Animal Handling).'],
+  ['Actions', 'Study', 'Intelligence check: Arcana, History, Investigation, Nature eller Religion.'],
+  ['Actions', 'Magic', 'Kast en spell med casting time Action, eller bruk et magic item som krever Magic action.'],
+  ['Actions', 'Utilize', 'Bruk et objekt som krever en action.'],
+
+  ['Skade og hvile', 'Death saves', 'Ved 0 HP kaster du d20 i starten av hver tur. 10 eller mer er suksess, under 10 er feil. Natural 20: opp med 1 HP. Natural 1: to feil. 3 suksesser gir stabil, 3 feil gir død.'],
+  ['Skade og hvile', 'Skade på 0 HP', 'Skade mens du er på 0 HP gir én death save-feil, to hvis det er et critical hit.'],
+  ['Skade og hvile', 'Instant death', 'Hvis skaden tar deg til 0 HP og det som er igjen av skaden er lik eller høyere enn Max HP, dør du med en gang.'],
+  ['Skade og hvile', 'Stabilize', 'Action: Wisdom (Medicine) check mot DC 10. En stabil karakter slipper death saves, men er fortsatt Unconscious.'],
+  ['Skade og hvile', 'Temp HP', 'Tas før vanlige HP. Stabler ikke: velg den høyeste. Varer til long rest og kan ikke heales.'],
+  ['Skade og hvile', 'Resistance og Vulnerability', 'Resistance halverer skaden, Vulnerability dobler den. Gjelder etter alle andre modifikatorer. Immunity gir ingen skade.'],
+  ['Skade og hvile', 'Concentration', 'Når du tar skade: Con save mot DC 10 eller halvparten av skaden, den høyeste (maks 30). Brytes av Incapacitated, død eller en ny Concentration-spell.'],
+  ['Skade og hvile', 'Short rest', 'Minst 1 time. Bruk Hit Dice (terning + Con mod) til å hele. Mange klasser får tilbake ressurser.'],
+  ['Skade og hvile', 'Long rest', 'Minst 8 timer. Alle HP og halvparten av Hit Dice (minst 1) tilbake. Maks én per 24 timer, og du må ha minst 1 HP.'],
+  ['Skade og hvile', 'Potion of Healing', '2d4 + 2 HP. Å drikke den selv er en bonus action. Å gi den til en annen er en action.'],
+  ['Skade og hvile', 'Heroic Inspiration', 'Du kan kaste om én d20 og må bruke det nye resultatet.'],
+
+  ['Sjekker og utforsking', 'DC-tabell', 'Very Easy 5, Easy 10, Medium 15, Hard 20, Very Hard 25, Nearly Impossible 30.'],
+  ['Sjekker og utforsking', 'Passive Perception', '10 + modifikator. +5 med Advantage og −5 med Disadvantage.'],
+  ['Sjekker og utforsking', 'Proficiency Bonus', 'Nivå 1–4: +2. Nivå 5–8: +3. Nivå 9–12: +4. Nivå 13–16: +5. Nivå 17–20: +6.'],
+  ['Sjekker og utforsking', 'Spell save DC', '8 + spellcasting ability mod + Proficiency Bonus. Spell attack bonus er mod + Proficiency Bonus.'],
+  ['Sjekker og utforsking', 'D20 Test', 'Ability check, saving throw eller attack roll: d20 + modifikator (+ Proficiency Bonus hvis proficient). Natural 20 og 1 teller bare automatisk på attack rolls og death saves.'],
+  ['Sjekker og utforsking', 'Group check', 'Alle i gruppen gjør checken. Lykkes minst halvparten, lykkes gruppen.'],
+  ['Sjekker og utforsking', 'Contest', 'Begge gjør en check. Høyeste vinner, og ved uavgjort forblir situasjonen som den var.'],
+
+  ['Sjekker og utforsking', 'Falling', '1d6 bludgeoning per 10 ft, maks 20d6. Du lander Prone med mindre du ikke tar skade.'],
+  ['Sjekker og utforsking', 'Lys og syn', 'Dim light er lightly obscured (Disadvantage på Perception som krever syn). Darkness er heavily obscured (som Blinded). Darkvision gjør dim light til bright og darkness til dim.'],
+  ['Sjekker og utforsking', 'Travel pace', 'Fast: 4 miles i timen, 30 miles om dagen (−5 på passive Perception). Normal: 3 miles i timen, 24 om dagen. Slow: 2 miles i timen, 18 om dagen (kan snike).'],
+  ['Sjekker og utforsking', 'Jumping', 'Long jump: Strength-score i ft med 10 ft løpestart. High jump: 3 + Str mod ft. Uten løpestart halveres lengden.'],
+  ['Sjekker og utforsking', 'Difficult terrain', 'Hver fot du beveger deg koster 1 ekstra fot.']
+].map(r => ({ cat: r[0], name: r[1], text: r[2] }));
+const ruleUi = { q: '', cat: null, open: null };
+function renderRules() {
+  const root = $('#rules'); if (!root) return;
+  const q = ruleUi.q.trim().toLowerCase();
+  const inList = !!(ruleUi.cat || q);
+  const search = h('input', { type: 'text', placeholder: 'Søk i reglene', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Søk i reglene', 'data-key': 'ruleq', value: ruleUi.q,
+    oninput: e => { ruleUi.q = e.target.value; renderRules(); } });
+  const hadFocus = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-key') === 'ruleq';
+  let main;
+  if (!inList) {
+    const tile = (label, cat, n) => h('button', { type: 'button', class: 'cattile', onclick: () => { ruleUi.cat = cat; renderRules(); } }, h('strong', {}, label), h('small', {}, n + (n === 1 ? ' regel' : ' regler')));
+    main = h('div', { class: 'cattiles' }, tile('Alle', 'ALLE', RULES.length), RULE_CATS.map(c => tile(c, c, RULES.filter(x => x.cat === c).length)));
+  } else {
+    const cur = ruleUi.cat && ruleUi.cat !== 'ALLE' ? ruleUi.cat : null;
+    const shown = RULES.filter(x => (!cur || x.cat === cur) && (!q || (x.name + ' ' + x.text).toLowerCase().includes(q)))
+      .sort((a, b) => (q ? (a.name.toLowerCase().includes(q) ? 0 : 1) - (b.name.toLowerCase().includes(q) ? 0 : 1) : 0));
+    const back = h('button', { type: 'button', class: 'btn small', onclick: () => { ruleUi.cat = null; ruleUi.q = ''; ruleUi.open = null; renderRules(); } }, '◀ Kategorier');
+    const list = h('ul', { class: 'list catlist' }, shown.length ? shown.map(x => {
+      const open = ruleUi.open === x.name || (q && shown.length <= 6);
+      return h('li', {}, h('div', { class: 'item rule' + (open ? ' open' : '') },
+        h('button', { type: 'button', class: 'rulehead', 'aria-expanded': open ? 'true' : 'false', onclick: () => { ruleUi.open = ruleUi.open === x.name ? null : x.name; renderRules(); } },
+          h('strong', {}, x.name), cur ? null : h('em', {}, x.cat)),
+        open ? h('p', { class: 'rtext' }, x.text) : null));
+    }) : [h('li', { class: 'muted' }, 'Ingen treff.')]);
+    main = [h('div', { class: 'row catbar' }, back, h('strong', { class: 'cattitle' }, cur || 'Alle')), list];
+  }
+  root.replaceChildren(search, ...[].concat(main));
+  if (hadFocus) { const s = root.querySelector('[data-key=ruleq]'); s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
+}
+
+/* ---------- recap ---------- */
+function renderRecap() {
+  const root = $('#recap'); if (!root) return;
+  root.replaceChildren(h('div', { class: 'recap' }, RECAP.split(/\n\s*\n/).map(t => t.trim()).filter(Boolean).map(t => h('p', {}, t))));
+}
+
+/* ---------- huskelapper ---------- */
+let noteList = null, clockD = null;
+const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+function tickClock() {
+  if (!clockD) return;
+  const d = new Date();
+  clockD.textContent = cap(d.toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long' }));
+}
+const fitNote = ta => { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; };
+function initNotes() {
+  clockD = h('span', { class: 'cdate' });
+  const add = h('input', { type: 'text', placeholder: 'Ny huskelapp, trykk Enter', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Ny huskelapp', 'data-key': 'noteq',
+    onkeydown: e => {
+      if (e.key !== 'Enter') return;
+      const t = e.target.value.trim(); if (!t) return;
+      S.notes.items.unshift({ id: uid(), text: t, t: Date.now() });
+      e.target.value = ''; queueSave('notes'); renderNotes();
+    } });
+  noteList = h('div', { class: 'notelist' });
+  $('#notes').replaceChildren(h('div', { class: 'nhdr' }, h('div', { class: 'clock' }, clockD), add), noteList);
+  tickClock(); setInterval(tickClock, 1000);
+  renderNotes();
+}
+function renderNotes() {
+  if (!noteList) return;
+  const items = S.notes.items;
+  noteList.replaceChildren(...(items.length ? items.map((n, i) => {
+    const ta = h('textarea', { class: 'ntext', rows: '1', spellcheck: 'false', 'aria-label': 'Huskelapp', 'data-key': 'note-' + n.id,
+      oninput: e => { n.text = e.target.value; fitNote(e.target); queueSave('notes'); } }, n.text);
+    ta.value = n.text;
+    return h('div', { class: 'note c' + (i % 4) },
+      h('div', { class: 'nhead' }, h('small', {}, n.t ? new Date(n.t).toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit' }) : ''),
+        h('button', { type: 'button', class: 'btn small sq xdel', title: 'Slett', 'aria-label': 'Slett huskelapp', onclick: () => { S.notes.items = S.notes.items.filter(x => x.id !== n.id); queueSave('notes'); renderNotes(); } }, '×')),
+      ta);
+  }) : [h('div', { class: 'muted' }, 'Ingen huskelapper ennå.')]));
+  noteList.querySelectorAll('textarea').forEach(fitNote);
+}
+
+/* ---------- sikkerhetskopi ---------- */
+function initBackup() {
+  const file = $('#bk-file');
+  $('#bk-import-slot').replaceChildren(twoStep('Erstatt filen', 'Erstatter alt. Velg fil', () => file.click(), 'small ghost'));
+  $('#bk-export').addEventListener('click', async () => {
+    if (!downloads) return;
+    const payload = { format: 'dm-skjerm-v1', savedAt: new Date().toISOString(), catalog: S.catalog, combat: S.combat, npcs: S.npcs, notes: S.notes };
+    try { await downloads.save({ filename: 'dm-skjerm-kopi-' + new Date().toISOString().slice(0, 10) + '.json', data: JSON.stringify(payload, null, 2) }); } catch (e) { /* avbrutt */ }
+  });
+  file.addEventListener('change', async () => {
+    const f = file.files[0]; file.value = '';
+    if (!f) return;
+    try {
+      const d = JSON.parse(await f.text());
+      if (d.format !== 'dm-skjerm-v1') throw new Error('feil format');
+      S.catalog = NORM.catalog(d.catalog); S.combat = NORM.combat(d.combat); S.npcs = NORM.npcs(d.npcs); if (d.notes) S.notes = NORM.notes(d.notes);
+      KEYS.forEach(queueSave); renderAll();
+    } catch (e) { setStatus('err'); $('#status').textContent = 'Filen kunne ikke leses'; }
+  });
+}
+
+function renderAll() { renderCatalog(); renderCombat(); updateConv(); renderNpc(); renderSheets(); renderRules(); renderNotes(); renderRecap(); }
+
+async function boot() {
+  setTimeout(unlock, 3000);
+  initConv(); initNpc(); initBackup(); initNotes();
+  renderAll();
+  if (typeof claude === 'undefined') { setStatus('off'); unlock(); return; }
+  try { db = await claude.use('db'); downloads = await claude.use('downloads'); } catch (e) { db = null; }
+  if (!downloads) $('#bk-export').hidden = true;
+  if (!db) { setStatus('off'); unlock(); return; }
+  let pending = KEYS.length;
+  const timer = setTimeout(() => { unlock(); setStatus('slow'); }, 10000);
+  KEYS.forEach(k => db.doc('dm/' + k).onSnapshot(s => {
+    if (!s.metadata.fromCache && !loaded[k]) {
+      loaded[k] = true;
+      if (--pending === 0) { clearTimeout(timer); unlock(); setStatus('saved0'); }
+    }
+    dbg('snapshot ' + k + ' cache=' + s.metadata.fromCache + ' pending=' + s.metadata.hasPendingWrites + ' timer=' + !!saveTimers[k] + ' inflight=' + !!inflight[k]);
+    if (s.metadata.hasPendingWrites || saveTimers[k] || inflight[k]) return;
+    adopt(k, s.exists ? JSON.parse(JSON.stringify(s.data())) : null);
+  }, () => { setStatus('err'); }));
+}
+boot();
+</script>
+</body>
+</html>
