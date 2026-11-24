@@ -1265,9 +1265,8 @@ function placeNpcList() {
   const r = npcQuery.getBoundingClientRect(), vh = window.innerHeight;
   const w = $('#npc').getBoundingClientRect();
   npcList.style.left = w.left + 'px'; npcList.style.width = w.width + 'px';
-  const below = vh - r.bottom - 14, above = r.top - 14;
-  if (below < 380 && above > below) { npcList.style.top = ''; npcList.style.bottom = (vh - r.top + 6) + 'px'; npcList.style.maxHeight = Math.min(400, above) + 'px'; }
-  else { npcList.style.bottom = ''; npcList.style.top = (r.bottom + 6) + 'px'; npcList.style.maxHeight = Math.min(400, below) + 'px'; }
+  npcList.style.bottom = ''; npcList.style.top = (r.bottom + 6) + 'px';
+  npcList.style.maxHeight = Math.max(160, Math.min(400, vh - r.bottom - 14)) + 'px';
 }
 function renderNpc() {
   if (!npcList) return;
@@ -1287,6 +1286,7 @@ function renderNpc() {
 function initNpc() {
   npcQuery = h('input', { type: 'text', placeholder: 'Søk NPC', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Søk etter NPC' });
   npcList = h('ul', { class: 'nlist npcdrop' }); npcList.hidden = true; document.body.appendChild(npcList);
+  npcList.addEventListener('mousedown', e => { if (!(e.target.closest && e.target.closest('input'))) e.preventDefault(); });
   window.addEventListener('resize', () => { if (!npcList.hidden) placeNpcList(); });
   npcLock = h('button', { type: 'button', class: 'btn small', title: 'Skjulte karakterer', 'aria-label': 'Lås opp eller lås skjulte karakterer', onclick: () => { if (secretOpen) { secretOpen = false; secretAsk = false; } else secretAsk = !secretAsk; renderNpc(); } }, icon('lock'));
   npcToggle = h('button', { type: 'button', class: 'btn small', onclick: () => { npcAll = !npcAll; npcQuery.value = ''; renderNpc(); } }, 'Vis alle');
