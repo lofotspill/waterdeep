@@ -1212,7 +1212,7 @@ function openAddPop(anchor) {
   openPop('add', anchor, h('div', { class: 'addpop' }), q);
   const el = pop.el;
   el.style.display = 'grid';
-  el.append(h('div', { class: 'row' }, h('div', { class: 'grow' }, q), h('span', { class: 'muted' }, 'Antall'), cnt, lock), list, msg, toggle, form);
+  el.append(h('div', { class: 'row' }, h('div', { class: 'grow' }, q), lock, h('span', { class: 'muted' }, 'Antall'), cnt), list, msg, toggle, form);
   q.focus();
 }
 
