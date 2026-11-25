@@ -913,7 +913,7 @@ const DEFAULTS = {
   combat: () => ({ round: 1, active: null, running: false, seq: 0, list: [] }),
   notes: () => ({ start: '18:00', end: '21:00', items: [] })
 };
-const LOCKED_PCS = [{ id: 'pc-sariel', name: 'Sariel', ac: 10 }, { id: 'pc-ekko', name: 'Ekko', ac: 12 }, { id: 'pc-andoran', name: 'Andoran' }, { id: 'pc-marcus', name: 'Marcus', ac: 13 }];
+const LOCKED_PCS = [{ id: 'pc-sariel', name: 'Sariel', ac: 10 }, { id: 'pc-ekko', name: 'Ekko', ac: 12 }, { id: 'pc-andoran', name: 'Andoran' }, { id: 'pc-marcus', name: 'Tosk', ac: 13 }];
 const REMOVED_IDS = ['pc-tina', 'pc-tosk'];
 const NORM = {
   catalog: normCatalog,
@@ -944,7 +944,7 @@ const NORM = {
     c.list.forEach(x => { if (!Array.isArray(x.conds)) x.conds = []; });
     LOCKED_PCS.forEach((p, i) => {
       const ex = c.list.find(x => x.id === p.id);
-      if (ex) { ex.locked = true; if (p.ac != null && !ex.ac) ex.ac = p.ac; }
+      if (ex) { ex.locked = true; ex.name = p.name; if (p.ac != null && !ex.ac) ex.ac = p.ac; }
       else c.list.push({ id: p.id, n: i + 1, name: p.name, kind: 'pc', init: null, hp: 0, max: 0, ac: p.ac == null ? null : p.ac, conds: [], locked: true });
     });
     c.list = c.list.filter(x => !REMOVED_IDS.includes(x.id));
